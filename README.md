@@ -1,5 +1,7 @@
 # emicmip
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23440591.svg)](https://doi.org/10.5281/zenodo.23440591)
+
 ```
                     _                      _
   ___   _ __ ___   (_)   ___   _ __ ___   (_)  _ __
@@ -19,6 +21,8 @@ CY48R1.
 - **Documentation:** https://rchg.github.io/emicmip/ (tools, datasets, emission
   specification, [validation](https://rchg.github.io/emicmip/validation.html)).
 - **Author:** Ramiro Checa-Garcia (KNMI)
+- **Cite as:** https://doi.org/10.5281/zenodo.23440591 (all versions; 0.2.0:
+  https://doi.org/10.5281/zenodo.23440592)
 - **Contributors:** Detailed in the documentation
 
 ## Tools

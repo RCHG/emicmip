@@ -13,6 +13,14 @@ authors:
     given-names: "Ramiro"
     affiliation: "Royal Netherlands Meteorological Institute (KNMI)"
     orcid: "https://orcid.org/0000-0001-7653-3653"
+doi: "10.5281/zenodo.23440591"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.23440591"
+    description: "All versions (concept DOI), resolves to the latest one"
+  - type: doi
+    value: "10.5281/zenodo.23440592"
+    description: "Version 0.2.0"
 version: "0.2.0"
 date-released: "2026-10-17"
 license: Apache-2.0
