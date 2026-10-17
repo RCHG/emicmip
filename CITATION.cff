@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "emicmip"
+abstract: >-
+  Set of tools to convert raw CMIP6/CMIP7 emission datasets (input4MIPs NetCDF) into
+  yearly per-species and per-group NetCDF files (grouped as tar files) for the
+  OpenIFS/IFS emission pre-processor. The suite also allows to check and validate
+  the produced datasets. It provides tested emission-specification files for
+  OpenIFS CY48R1.
+type: software
+authors:
+  - family-names: "Checa-Garcia"
+    given-names: "Ramiro"
+    affiliation: "Royal Netherlands Meteorological Institute (KNMI)"
+    orcid: "https://orcid.org/0000-0001-7653-3653"
+version: "0.2.0"
+date-released: "2026-10-17"
+license: Apache-2.0
+repository-code: "https://github.com/rchg/emicmip"
+url: "https://rchg.github.io/emicmip/"
+keywords:
+  - emissions
+  - CMIP7
+  - CMIP6
+  - input4MIPs
+  - OpenIFS
+  - IFS
+  - climate-model
