@@ -1,0 +1,256 @@
+# ╭────────────────────────────────────────────────────────────────────────────╮
+# │                                                        (update 2026-10-15) │
+# │ Example: historical CMIP7 + CO2, biomass burning bbALL (total)             │
+# │ Contact: Ramiro Checa-Garcia (KNMI)                                        │
+# │                                                                            │
+# │ Same as cmip7_m7_simchem.emi (tars CMIP7hist-2025-04-18d-ec3) plus CO2:    │
+# │   anthro-surf (8 sectors), aviation (AVI, 3D) and biomass burning.         │
+# │   Biomass-burning CO2 read from: bbALL (total fire CO2, incl. peat)        │
+# │ Differences with cmip7_m7_simchem.emi: sections 1.5 and CO2.               │
+# │                                                                            │
+# │ Sibling file: cmip7_m7_simchem_co2-bbPEAT.emi                              │
+# │ History is explained at the end of this file                               │
+# ╰────────────────────────────────────────────────────────────────────────────╯
+
+#===============================================================================
+# ** 1.0 SOURCES 
+#
+# *** 1.1 Natural Emissions (biogenic, soil, volcanos) -------------------------
+#
+#     Sources: CAMS, TM5_DMS, CAMS-volcanos
+#
+species!=DMS/SO2/NH3, sector==emiss_bio: src=ec:/eccams/Emis/CAMS-GLOB-BIO/v3.1/climatology/CAMS-GLOB-BIO_v3.1_{xfvar|_tag|species}.clim_2013-2022.nc, preconvert=cdo_grib1:emiss_bio:-setgrid,global_0.25:-settaxis,{year}-01-15,0,1mon, prespatial=box_avg, pretemporal=timeint
+species=DMS,          sector=emi_oceans: src=ec:/cxal/Emis/DMS/CAMS-GLOB-OCE_v3.1_DMS_clim2000-2021.nc, preconvert=cdo_grib1:emi_oceans:-settaxis,{year}-01-01,0,1mon, prespatial=box_avg, pretemporal=timeint_shiftmonth
+species=DMS,          sector=emiss_bio:  src=file:/ec/res4/hpcperm/nk9/CAMS/Emis/old_sources/TM5_DMS/TM5_surface_DMS_0000.0.5x0.5.nc, preconvert=cdo_grib1:emis:-settaxis,{year}-01-15,0,1mon, prespatial=box_avg, pretemporal=timeint
+#species=NH3,         sector=emiss_bio:  src=file:/ec/res4/hpcperm/nk9/CAMS/Emis/old_sources/MACC_NRT/JUELICH_MACC_reanalysis_{xfvar|_tag|species}_2008_0.5x0.5_kg.nc, prespatial=box_avg, pretemporal=timeint, prencrename=-a:time@unit,time@units, preconvert=cdo_grib1:emiss_soil
+
+# Use for simplified chemistry only, when no explicit DMS chemistry treatment in the model. Scale factor 'scaling': xmSO2/xmDMS = 64.07/62.13=1.03, assuming yield is unity
+species=SO2,  sector=emi_oceans:  src=ec:/cxal/Emis/DMS/CAMS-GLOB-OCE_v3.1_DMS_clim2000-2021.nc, preconvert=cdo_grib1:emi_oceans:-settaxis,{year}-01-01,0,1mon, prespatial=box_avg, pretemporal=timeint_shiftmonth
+species=SO2,  sector=emiss_bio:   src=file:/ec/res4/hpcperm/nk9/CAMS/Emis/old_sources/TM5_DMS/TM5_surface_DMS_0000.0.5x0.5.nc, preconvert=cdo_grib1:emis:-settaxis,{year}-01-15,0,1mon, prespatial=box_avg, pretemporal=timeint
+species==SO2, sector==emiss_bio:  prescaling*=1.03
+species==SO2, sector==emi_oceans: prescaling*=1.03
+species=SO2,  sector=emi_oceans:  paramid=216151
+species=SO2,  sector=emiss_bio:   paramid=216152
+
+# SO2 volcano heights (chemistry and aerosol)
+
+sector=emiss_vol: src=ec:/cxal/Emis/Volcanoes/CAMS-GLOB-VOLC-CLIM-2005-2021-V1.nc, preconvert=cdo_grib1:emiss_nat_CAMS_MEAN:-settaxis,{year}-01-01,0,1mon, prespatial=box_avg, pretemporal=timeint_shiftmonth
+sector=emiss_vol: vertical_profile_type=AltitudeMap, vertical_paramid=216045, vertical_base_level=-1, vertical_top_level=-4, vertical_threshold=200
+paramid=216045: src=file:/ec/res4/hpcperm/nk9/CAMS/Emis/emis_aux/volcanoes/volcanoes.grb_05, prespatial=box_max
+
+
+# *** 1.2 Anthropogenic Emissions (surface) ------------------------------------
+
+sector=AGR/ENE/IND/TRA/RCO/SLV/WST/SHP:   src=ec:/nldac/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_{year}.tar#CMIP7hist-2025-04-18d-ec3_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:{sector}, prespatial=box_avg, pretemporal=timeint
+
+# *** 1.3 SOA sectors ----------------------------------------------------------
+sector=ene_SOA: src=ec:/nldac/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_{year}.tar#CMIP7hist-2025-04-18d-ec3_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:ENE, prespatial=box_avg, pretemporal=timeint
+sector=ind_SOA: src=ec:/nldac/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_{year}.tar#CMIP7hist-2025-04-18d-ec3_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:IND, prespatial=box_avg, pretemporal=timeint
+sector=rco_SOA: src=ec:/nldac/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_{year}.tar#CMIP7hist-2025-04-18d-ec3_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:RCO, prespatial=box_avg, pretemporal=timeint
+sector=shp_SOA: src=ec:/nldac/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_{year}.tar#CMIP7hist-2025-04-18d-ec3_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:SHP, prespatial=box_avg, pretemporal=timeint
+sector=wst_SOA: src=ec:/nldac/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_{year}.tar#CMIP7hist-2025-04-18d-ec3_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:WST, prespatial=box_avg, pretemporal=timeint
+sector=tra_SOA: src=ec:/nldac/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_{year}.tar#CMIP7hist-2025-04-18d-ec3_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:TRA, prespatial=box_avg, pretemporal=timeint
+sector=slv_SOA: src=ec:/nldac/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_{year}.tar#CMIP7hist-2025-04-18d-ec3_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:SLV, prespatial=box_avg, pretemporal=timeint
+sector=agr_SOA: src=ec:/nldac/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_{year}.tar#CMIP7hist-2025-04-18d-ec3_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:AGR, prespatial=box_avg, pretemporal=timeint
+
+# *** 1.4 Aircraft emissions ---------------------------------------------------
+sector=AVI: vertical_profile_type=3D, src=ec:/nldac/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_{year}.tar#CMIP7hist-2025-04-18d-ec3_05x05_anthro-air_{xfvar|_tag|species}_{year}.nc, prespatial=box_avg, preconvert=cdo_grib2:-setzaxis,/home/eccams/data/cifs_input/emis_aux/AIR_AUX_V1/AIR_AUX.zaxis.L{levels}:-selname,AVI:-mul:-intlevelx3d,/home/eccams/data/cifs_input/emis_aux/AIR_AUX_V1/AIR_AUX.z.L{levels}.nc:-divc,610::-expr,z=clev(AVI)*1e3+AVI*0::/home/eccams/data/cifs_input/emis_aux/AIR_AUX_V1/AIR_AUX.thickness.L{levels}.nc, pretemporal=timeint_month
+
+# *** 1.5 Biomass-burning emissions --------------------------------------------
+# biomass_burning reads ONE variable of the _bburning_ files: preconvert=cdo_grib1:<var>.
+# Variables in the CMIP7hist-2025-04-18d-ec3 tars:
+#   bbALL   total biomass burning, every species                       <- used here
+#   bbPEAT  CO2 only: bbALL scaled by CO2percentagePEAT (peat fires only, NOT the total).
+#           It does not exist for the other species: the pre-processor would fail.
+# CO2 (CO2 section below) is read by this same line: bbALL, total fire CO2.
+# Do not add bbPEAT: it is already part of bbALL.
+sector=biomass_burning: src=ec:/nldac/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_{year}.tar#CMIP7hist-2025-04-18d-ec3_025x025_bburning_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:bbALL, pretemporal=timeint
+
+# ==============================================================================
+species=BC_KI: _tag=BC
+species=BC_AS: _tag=BC
+
+# --- Biomass Burning: partition in BC_KI and BC_AS ----------------------------
+
+species=BC_KI, sector=biomass_burning: paramid=219050
+species=BC_AS, sector=biomass_burning: paramid=219051
+
+species=BC_KI, sector=biomass_burning: scaling*=0.05,  precap=0.00000001, PSD_RADIUS=0.03E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="KI_N", MASS_DENSITY=1800
+species=BC_AS, sector=biomass_burning: scaling*=0.95,  precap=0.00000001, PSD_RADIUS=0.075E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="AS_N", MASS_DENSITY=1800
+
+# --- Other Sectors: only emissions in BC_KI  ----------------------------------
+species=BC_KI, sector!=biomass_burning: scaling*=1.00,  precap=0.00000001, PSD_RADIUS=0.03E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="KI_N", MASS_DENSITY=1800
+
+species=BC_KI, sector=AGR: paramid=212221
+species=BC_KI, sector=ENE: paramid=212222
+species=BC_KI, sector=IND: paramid=212223
+species=BC_KI, sector=RCO: paramid=212224
+species=BC_KI, sector=SHP: paramid=212225
+species=BC_KI, sector=WST: paramid=212226
+species=BC_KI, sector=TRA: paramid=212227
+species=BC_KI, sector=SLV: paramid=212228
+
+# --- Organic Matter (POM) -----------------------------------------------------
+species=POM_KS, sector==emiss_bio: xfexpr=(alpha_pinene+beta_pinene+other_monoterpenes)*0.077
+species=POM_AS, sector!=ene_SOA/ind_SOA/rco_SOA/shp_SOA/wst_SOA/tra_SOA/slv_SOA/agr_SOA/emiss_bio: _tag=OC
+species=POM_KI: _tag=OC
+
+species=POM_KS, sector=emiss_bio: paramid=216174, precap=0.000000001, PSD_RADIUS=0.03E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="KS_N", MASS_DENSITY=1300
+
+species=POM_KS, sector==ene_SOA:  _tag=CO, prescaling*=0.049
+species=POM_KS, sector==ind_SOA:  _tag=CO, prescaling*=0.049
+species=POM_KS, sector==rco_SOA:  _tag=CO, prescaling*=0.049
+species=POM_KS, sector==shp_SOA:  _tag=CO, prescaling*=0.049
+species=POM_KS, sector==wst_SOA:  _tag=CO, prescaling*=0.049
+species=POM_KS, sector==tra_SOA:  _tag=CO, prescaling*=0.049
+species=POM_KS, sector==slv_SOA:  _tag=CO, prescaling*=0.049
+species=POM_KS, sector==agr_SOA:  _tag=CO, prescaling*=0.049
+
+species=POM_KS, sector=ene_SOA: paramid=216165, precap=0.000000001, PSD_RADIUS=0.03E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="KS_N", MASS_DENSITY=1300
+species=POM_KS, sector=ind_SOA: paramid=216166, precap=0.000000001, PSD_RADIUS=0.03E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="KS_N", MASS_DENSITY=1300
+species=POM_KS, sector=rco_SOA: paramid=216167, precap=0.000000001, PSD_RADIUS=0.03E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="KS_N", MASS_DENSITY=1300
+species=POM_KS, sector=shp_SOA: paramid=216168, precap=0.000000001, PSD_RADIUS=0.03E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="KS_N", MASS_DENSITY=1300
+species=POM_KS, sector=wst_SOA: paramid=216169, precap=0.000000001, PSD_RADIUS=0.03E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="KS_N", MASS_DENSITY=1300
+species=POM_KS, sector=tra_SOA: paramid=216171, precap=0.000000001, PSD_RADIUS=0.03E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="KS_N", MASS_DENSITY=1300
+species=POM_KS, sector=slv_SOA: paramid=216172, precap=0.000000001, PSD_RADIUS=0.03E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="KS_N", MASS_DENSITY=1300
+species=POM_KS, sector=agr_SOA: paramid=216173, precap=0.000000001, PSD_RADIUS=0.03E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="KS_N", MASS_DENSITY=1300
+
+
+
+
+# --- Biomass Burning: partition in POM_KI and POM_AS --------------------------
+species=POM_AS, sector=biomass_burning: paramid=219032
+species=POM_KI, sector=biomass_burning: paramid=219033
+
+species=POM_KI, sector=biomass_burning:  scaling*=0.08, precap=0.00000001, PSD_RADIUS=0.03E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="KI_N", MASS_DENSITY=1300
+species=POM_AS, sector=biomass_burning:  scaling*=1.52, precap=0.00000001, PSD_RADIUS=0.075E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="AS_N", MASS_DENSITY=1300
+
+species=POM_KI, sector!=biomass_burning: scaling*=1.60, precap=0.00000001, PSD_RADIUS=0.03E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="KI_N", MASS_DENSITY=1300
+
+# --- Other Sectors: only emissions in POM_KI  ----------------------------------
+species=POM_KI, sector=AGR: paramid=219041
+species=POM_KI, sector=ENE: paramid=219042
+species=POM_KI, sector=IND: paramid=219043
+species=POM_KI, sector=RCO: paramid=219044
+species=POM_KI, sector=SHP: paramid=219045
+species=POM_KI, sector=WST: paramid=219046
+species=POM_KI, sector=TRA: paramid=219047
+species=POM_KI, sector=SLV: paramid=219048
+
+
+species=SO4_*: _tag=SO2
+species=SO4_AS, sector=biomass_burning: paramid=219054
+
+species=SO4_AS, sector=biomass_burning:     scaling*=0.03757, precap=0.00000001, PSD_RADIUS=0.075E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="AS_N", MASS_DENSITY=1841
+species=SO4_AS, sector=ENE/IND/SHP:         scaling*=0.01878, precap=0.00000001, PSD_RADIUS=0.075E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="AS_N", MASS_DENSITY=1841
+species=SO4_CS, sector=ENE/IND/SHP:         scaling*=0.01878, precap=0.00000001, PSD_RADIUS=0.75E-6,  PSD_SIGMA=2.00, PSD_N0_TRACER="CS_N", MASS_DENSITY=1841
+species=SO4_KS, sector=AGR/RCO/WST/TRA/SLV: scaling*=0.03757, precap=0.00000001, PSD_RADIUS=0.03E-6,  PSD_SIGMA=1.59, PSD_N0_TRACER="KS_N", MASS_DENSITY=1841
+
+species=SO4_AS, sector=ENE: paramid=219020
+species=SO4_AS, sector=IND: paramid=219021
+species=SO4_AS, sector=SHP: paramid=219022
+
+species=SO4_CS, sector=ENE: paramid=219023
+species=SO4_CS, sector=IND: paramid=219024
+species=SO4_CS, sector=SHP: paramid=219025
+
+species=SO4_KS, sector=AGR: paramid=219027
+species=SO4_KS, sector=RCO: paramid=219028
+species=SO4_KS, sector=WST: paramid=219029
+species=SO4_KS, sector=TRA: paramid=219030
+species=SO4_KS, sector=SLV: paramid=219031
+
+
+# --- Volcanic aerosols -------------------------------------------------------
+
+# SO2 -> 2.5% SO4 (H2SO4)
+species=SO4_AS, sector=emiss_vol: scaling*=0.01878,  precap=0.00000001, PSD_RADIUS=0.075E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="AS_N", MASS_DENSITY=1841
+species=SO4_AS, sector=emiss_vol: paramid=219026
+species=SO4_KS, sector=emiss_vol: scaling*=0.01878,  precap=0.00000001, PSD_RADIUS=0.03E-6, PSD_SIGMA=1.59, PSD_N0_TRACER="KS_N", MASS_DENSITY=1841
+species=SO4_KS, sector=emiss_vol: paramid=219036
+
+#===============================================================================
+# SO2
+
+species=SO2, sector=AGR: paramid=212212
+species=SO2, sector=ENE: paramid=212213
+species=SO2, sector=IND: paramid=212214
+species=SO2, sector=RCO: paramid=212215
+species=SO2, sector=SHP: paramid=212216
+species=SO2, sector=WST: paramid=212217
+species=SO2, sector=TRA: paramid=212218
+species=SO2, sector=SLV: paramid=212219
+
+species=SO2, sector=emiss_vol:  paramid=212211
+species=SO2, sector=biomass_burning: xfexpr=SO2+1.03*C2H6S, paramid=212019
+
+#===============================================================================
+# DMS
+
+species=DMS,         sector=emi_oceans: paramid=212131
+species=DMS,         sector=emiss_bio:  paramid=212132
+
+
+
+#===============================================================================
+# CO2
+#
+# CO2 from the same d-ec3 tars: anthro-surf (AGR..SLV), anthro-air (AVI) and
+# biomass burning (section 1.5, bbALL). The species name (CO2) must
+# match the CO2 tracer of the model setup. Units kg(CO2) m-2 s-1.
+
+species==CO2, sector==AGR/ENE/IND/TRA/RCO/SLV/WST/SHP: _tag=CO2
+
+species=CO2, sector=AGR: paramid=216101
+species=CO2, sector=ENE: paramid=216102
+species=CO2, sector=IND: paramid=216103
+species=CO2, sector=RCO: paramid=216104
+species=CO2, sector=SHP: paramid=216105
+species=CO2, sector=WST: paramid=216106
+species=CO2, sector=TRA: paramid=216107
+species=CO2, sector=SLV: paramid=216108
+
+species=CO2, sector=AVI: paramid=212253, _tag=CO2
+
+# No src= here: CO2 biomass burning is read by the line(s) of section 1.5.
+species=CO2, sector=biomass_burning: paramid=210080
+
+# Anthro diurnal cycles
+sector=AGR: diurnal_cycle_type=CAMS_GLOB_AGS
+sector=ENE: diurnal_cycle_type=CAMS_GLOB_ENE
+sector=IND: diurnal_cycle_type=CAMS_GLOB_IND
+sector=RCO: diurnal_cycle_type=CAMS_GLOB_RES
+sector=SHP: diurnal_cycle_type=CAMS_GLOB_SHP
+sector=SLV: diurnal_cycle_type=CAMS_GLOB_SLV
+sector=WST: diurnal_cycle_type=CAMS_GLOB_SWD
+sector=TRA: diurnal_cycle_type=CAMS_GLOB_TRO
+
+sector=ENE: vertical_profile_type=HeightRange, vertical_base_height=200, vertical_top_height=800
+sector=IND: vertical_profile_type=HeightRange, vertical_base_height=20, vertical_top_height=300
+sector=SHP: vertical_profile_type=HeightRange, vertical_base_height=30, vertical_top_height=100
+sector=WST: vertical_profile_type=HeightRange, vertical_base_height=20, vertical_top_height=100
+
+sector==ene_SOA/ind_SOA/rco_SOA/shp_SOA/wst_SOA/tra_SOA/slv_SOA/agr_SOA/emiss_bio: vertical_profile_type=HeightRange, vertical_base_height=100, vertical_top_height=500
+
+# Diurnal cycle for biomass-burning emissions
+sector=biomass_burning: diurnal_cycle_type=GFAS, diurnal_peak_hour=13.5, diurnal_baseline=0.2
+
+# Spatial interpolation of biomass-burning emissions
+sector=biomass_burning: prespatial=box_avg
+
+#===============================================================================
+# HISTORY
+#
+# 2025-05-12: first version, for the tars of the previous tool.
+# 2026-10-12: tars CMIP7hist-2025-04-18c -> CMIP7hist-2025-04-18d-ec3. Biomass burning
+#             uses the current tool's naming (_bburning_, variable bbALL) instead
+#             of the old tool's (_bb4-2-0_, variable biomass_burning). bbALL
+#             already includes peat: bbPEAT (CO2 only) is in the file but not added.
+#             d-ec3 also adds bulk anthro-surf NMVOC (derived, sum of the 23
+#             speciated VOCs) and CH4 aviation (2000-2023); not used here.
+#             The d-ec3 tars were made with --nccompress: netCDF4, deflate level 4
+#             + shuffle, lossless (same values). The tar of each year can be 7-10
+#             times smaller, so copies from ec:/ during pre-processing are faster;
+#             cdo decompresses quickly.
+# 2026-10-15: CO2 example (biomass burning bbALL): cmip7_m7_simchem.emi + CO2
+#             from the d-ec3 tars.

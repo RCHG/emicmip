@@ -1,0 +1,65 @@
+# Build the user documentation (Sphinx, doc/web) and the cheatsheet (Typst,
+# doc/cheatsheet), and publish them on GitHub Pages:
+# https://rchg.github.io/emicmip/
+# Repository settings > Pages > Source must be "GitHub Actions".
+
+name: docs
+
+on:
+  push:
+    branches: [main]
+    paths: ["doc/**", ".github/workflows/docs.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: typst-community/setup-typst@v4
+        with:
+          typst-version: 0.15.0
+
+      - name: Cheatsheet
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-firacode   # code font of the cheatsheet
+          # text font of the cheatsheet (no Ubuntu package); without it, DejaVu Sans is used
+          mkdir -p fonts && curl -sfL https://github.com/mozilla/Fira/archive/refs/tags/4.202.tar.gz \
+            | tar xz -C fonts --strip-components=1 --wildcards '*/ttf/FiraSans-*.ttf' || true
+          mkdir -p doc/web/_extra
+          typst compile --font-path fonts doc/cheatsheet/cheatsheet-emicmip.typ doc/web/_extra/emicmip-cheatsheet.pdf
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Web pages
+        run: |
+          pip install sphinx==8.2.3 myst-parser==4.0.1 sphinx-rtd-theme==3.1.0 sphinxcontrib-mermaid==2.0.0
+          sphinx-build -b html doc/web doc/web/_build/html
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: doc/web/_build/html
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

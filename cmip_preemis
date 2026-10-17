@@ -1,0 +1,289 @@
+#!/usr/bin/env python3
+# ╭────────────────────────────────────────────────────────────────────────────╮
+# │ cmip_preemis                                          (updated 2025-07)    │
+# │                                                                            │
+# │ Author:  Ramiro Checa-Garcia (KNMI)                                        │
+# │ Purpose: Preprocessing CMIP raw dataset for emissions preprocessor         │
+# │                                                                            │
+# ╰────────────────────────────────────────────────────────────────────────────╯
+
+#---[ IMPORTS ]-----------------------------------------------------------------
+
+import os
+import sys
+import argparse
+
+sys.dont_write_bytecode = True
+
+# lib.cli and lib.server_env are free of 3.10+ syntax, so they're safe to import
+# and run before we've confirmed the interpreter is new enough for the rest of
+# this tool (lib/cmip_process.py uses `X | Y` annotations that would raise a
+# confusing TypeError at import time on an older Python, instead of
+# server_env's clear "module load python3" message).
+#
+# NOTE: this file used to start with `from __future__ import annotations` to
+# make parse_args' return annotation below (a subscripted builtin generic,
+# `tuple[...]`) lazy so it wouldn't raise on an old interpreter. Don't add it
+# back: that statement itself needs Python >= 3.7 just to parse, and the bare
+# `python3` on PATH on the servers this runs on (before any `module load`) is
+# 3.6.8, so the import raised a SyntaxError before check_environment() ever
+# got to run and print its friendly "module load python3" message -- worse
+# than the problem it was meant to prevent. Instead, parse_args' return
+# annotation below is written as a plain string literal, which is valid on
+# any Python 3.x since it's never evaluated/subscripted. Once the servers'
+# actual default python3 (not the module-loaded one) is upgraded past 3.7,
+# this workaround can be reverted to a normal annotation. As of 2026-08 it's
+# still needed -- don't "clean this up" without checking that first.
+import lib.cli as cli
+import lib.server_env as server_env
+
+#---[ Configuration ]-----------------------------------------------------------
+
+cmip_config = {
+    "cmip7": {
+        "historical":     "etc/historical_cmip7.toml",
+        "scenariomip-m":  "etc/scenariomip-m_cmip7.toml",
+        "scenariomip-h":  "etc/scenariomip-h_cmip7.toml",
+        "scenariomip-l":  "etc/scenariomip-l_cmip7.toml",
+        "scenariomip-vl": "etc/scenariomip-vl_cmip7.toml",
+        "aerchemmip":     "etc/aerchemmip_cmip7.toml",
+    },
+    "cmip6": {
+        "historical": "etc/historical_cmip6.toml",
+    },
+}
+
+#---[ Helper functions ]--------------------------------------------------------
+
+def parse_args(
+    args: argparse.Namespace, datainfo: dict
+) -> "tuple[str, dict[str, str], str, str, list[str]]":  # string literal: see NOTE above on Python 3.6.8
+    """Parse command line arguments and resolve paths.
+
+    Validates any requested years, resolves rawpath/propath/outpath (CLI
+    flags override the config when given), builds the raw-input path for
+    each requested group, and builds a list of human-readable group names
+    for the run summary.
+
+    Args:
+        args: parsed CLI arguments (see lib.cli.cli_arguments)
+        datainfo: config dict for the selected CMIP version (see
+            lib.cmip_config.load_config)
+
+    Returns:
+        Tuple (source_raw, rawpath, propath, outpath, lgroups):
+            source_raw: resolved raw-input root path
+            rawpath: dict mapping requested group name ("anthro", "biomass",
+                "aviation") to its raw-input path
+            propath: resolved path for temporary processing files
+            outpath: resolved path for final output files
+            lgroups: human-readable names of the requested groups, for
+                display only
+    """
+
+    # Validate years
+    if args.years is not None:
+        for yy in args.years:
+            try:
+                int(yy)
+            except ValueError:
+                print(f"Requested year: {yy} is not valid")
+                sys.exit(1)
+
+    # --forceinterp is a validation run: its files must never mix with, or
+    # replace, the real ones (same names) -- own --outpath, nothing to the store
+    if args.forceinterp:
+        if args.years is None or not set(args.forceinterp) <= set(args.years):
+            print(f"--forceinterp {' '.join(args.forceinterp)}: these years must also be in --years")
+            sys.exit(1)
+        if args.outpath is None:
+            print("--forceinterp needs its own --outpath (the interpolated files have the normal names)")
+            sys.exit(1)
+        if args.store in ["both", "year"]:
+            print("--forceinterp: tars are kept local, not copied to the store (--store ignored)")
+            args.store = "none"
+
+    # Resolve rawpath
+    source_raw = datainfo["rawpath"] if args.rawpath is None else args.rawpath
+    
+    rawpath = {}
+    if args.anthro:
+        rawpath["anthro"] = os.path.join(source_raw, datainfo["anthro"]["path"])
+    if args.biomass:
+        rawpath["biomass"] = os.path.join(source_raw, datainfo["bburning"]["path"])
+    if args.aviation:
+        rawpath["aviation"] = os.path.join(source_raw, datainfo["aviation"]["path"])
+    
+    # Resolve propath and outpath
+    propath = datainfo["propath"] if args.propath is None else args.propath
+    outpath = datainfo["outpath"] if args.outpath is None else args.outpath
+    
+    # Build group display names
+    lgroups = []
+    if args.anthro:
+        lgroups.append("Anthro. emissions (surf)")
+    if args.biomass:
+        lgroups.append("Open biomass burning")
+    if args.aviation:
+        lgroups.append("Aviation emissions")
+    
+    return source_raw, rawpath, propath, outpath, lgroups
+
+#---[ Main ]--------------------------------------------------------------------
+
+if __name__ == '__main__':
+    args = cli.cli_arguments()
+    import lib.aux as aux
+    print(aux.banner("cmip_preemis"))
+
+    problems = server_env.check_environment(verbose=args.verbose)
+    if problems:
+        server_env.print_problems_and_exit(problems, tool_name="cmip_preemis")
+
+    import shlex
+    import lib.aux as aux
+    import lib.cmip_process as cmip_process
+    from lib._version import __version__
+    from lib.cmip_config import load_config
+    from lib.cmip_process import process_group as cmip_group
+
+    clean = not args.noclean
+    if args.cleanafter and args.noclean:
+        print(aux.perror("\n--cleanafter and --noclean contradict each other: use one of them."))
+        sys.exit(1)
+    if args.cleanafter and args.store not in ("year", "both"):
+        print(aux.perror(f"\n--cleanafter needs --store year or both (got '{args.store}'): "
+                         "files are only removed once their tar is in the store."))
+        sys.exit(1)
+
+    # Load configuration
+    if args.toml is not None:
+        print(aux.pinfo(f"\n --> Selected config file: {args.toml}"))
+        print(aux.pinfo(f" -->              dataset: {args.cmip}"))
+        if not os.path.isfile(args.toml):
+            print(aux.pwarn(f"\nThe config file {args.toml} can't be accessed."))
+            sys.exit(1)
+        datainfo = load_config(args.toml, args.cmip)
+        toml_path = args.toml
+    else:
+        cmip_key = args.cmip.lower()
+        if cmip_key not in cmip_config:
+            cmipkeys = ", ".join(cmip_config.keys())
+            print(aux.perror(f"\nThe cmip value {args.cmip} is not listed"))
+            print(aux.pwarn(f"---> Available options: {cmipkeys}\n"))
+            sys.exit(1)
+
+        mip_cfg = cmip_config[cmip_key]
+        if args.mip not in mip_cfg:
+            mipskeys = ", ".join(mip_cfg.keys())
+            print(aux.perror(f"\nThe mip value {args.mip} is not listed for {args.cmip}"))
+            print(aux.pwarn(f"---> Available options for {args.cmip}: {mipskeys}\n"))
+            sys.exit(1)
+
+        fname_config = mip_cfg[args.mip]
+        if not os.path.isfile(fname_config):
+            print(aux.perror(f"\n{fname_config} not found."))
+            sys.exit(1)
+
+        print(aux.pinfo(f"\n --> Selected config file: {fname_config}"))
+        print(aux.pinfo(f" -->              dataset: {args.cmip}"))
+        datainfo = load_config(fname_config, args.cmip)
+        toml_path = fname_config
+
+    # Parse arguments and resolve paths
+    source_raw, rawpath, propath, outpath, lgroups = parse_args(args, datainfo)
+
+    # Preflight: fail fast on a missing raw input root, and create
+    # propath/outpath/tar_store upfront rather than only discovering they're
+    # missing after processing has already run (see lib.aux.validate_paths)
+    aux.validate_paths(rawpath, propath, outpath, datainfo.get("tar_store"))
+
+    # Print summary
+    print(aux.pshow("\n ------ Processing files for emission preprocessor -------------"))
+    print(aux.pinfo(f" Version:  ") + __version__)
+    print(aux.pinfo(f" Dataset:  ") + f"{args.cmip}")
+    print(aux.pinfo(f" Groups :  ") + " || ".join(lgroups))
+    print(aux.pinfo(f" INPUTS :  ") + source_raw)
+    print(aux.pinfo(f" STOREIN:  ") + outpath)
+    print(aux.pinfo(f" Verbose:  ") + str(args.verbose))
+    print(aux.pshow(" ---------------------------------------------------------------"))
+
+    # One year, one file: stop before processing if two raw files cover the
+    # same year of a species (see cmip_process.check_sources)
+    cmip_process.check_sources(datainfo, {g: rawpath[k] for g, k in (("anthro", "anthro"),
+                               ("bburning", "biomass"), ("aviation", "aviation")) if k in rawpath},
+                               years=args.years)
+
+    # Process each group
+    lfiles_anthro = []
+    lfiles_biomass = []
+    lfiles_aviation = []
+    
+    if args.anthro:
+        lfiles_anthro = cmip_group(
+            datainfo, "anthro", rawpath["anthro"],
+            outpath, propath, args.verbose,
+            clean=clean, store=args.store,
+            overwrite=args.overwrite, years=args.years,
+            force_interp=args.forceinterp
+        )
+        if args.ecearth3:
+            lfiles_ecearth3 = cmip_process.apply_ecearth3_biofuel_subtraction(
+                datainfo["anthro"], lfiles_anthro,
+                overwrite=args.overwrite, verbose=args.verbose
+            )
+            lfiles_anthro = lfiles_anthro + lfiles_ecearth3
+
+    if args.biomass:
+        lfiles_biomass = cmip_group(
+            datainfo, "bburning", rawpath["biomass"],
+            outpath, propath, args.verbose,
+            clean=clean, store=args.store,
+            overwrite=args.overwrite, years=args.years,
+            force_interp=args.forceinterp
+        )
+    
+    if args.aviation:
+        lfiles_aviation = cmip_group(
+            datainfo, "aviation", rawpath["aviation"],
+            outpath, propath, args.verbose,
+            clean=clean, store=args.store,
+            overwrite=args.overwrite, years=args.years,
+            force_interp=args.forceinterp
+        )
+    
+    # Print created files
+    for nc in lfiles_biomass:
+        print(nc)
+    for nc in lfiles_anthro:
+        print(nc)
+    for nc in lfiles_aviation:
+        print(nc)
+    
+    # Store by year
+    lfiles_all = lfiles_biomass + lfiles_anthro + lfiles_aviation
+    if args.years is None:
+        # Same years process_group used: the requested groups' ranges in the
+        # config (was a fixed 1750-2023, which left ScenarioMIP years after
+        # 2023 processed but never tarred)
+        groups = [g for g, on in (("anthro", args.anthro), ("bburning", args.biomass),
+                                  ("aviation", args.aviation)) if on]
+        lyears = [str(a) for a in aux.config_years(datainfo, groups)]
+    else:
+        lyears = args.years
+    # Header of the toml copy bundled in each tar; cmip_check --deep reads these
+    # lines back (older tars only have "run as" and "version").
+    import getpass
+    import socket
+    import datetime
+    toml_header = (f"# run as: {shlex.join(sys.argv)}\n"
+                   f"# version: {__version__}\n"
+                   f"# created: {datetime.datetime.now().isoformat(timespec='seconds')}\n"
+                   f"# user@host: {getpass.getuser()}@{socket.gethostname()}\n")
+    aux.tar_store_byyear(args, datainfo, lfiles_all, lyears, toml_path=toml_path, toml_header=toml_header)
+
+    # Species/periods configured but without a raw file (see lib/cmip_process.py)
+    cmip_process.print_missing_raw_summary()
+    cmip_process.print_interpolated_summary()
+
+

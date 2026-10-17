@@ -1,0 +1,231 @@
+#!/usr/bin/env python3
+# ╭────────────────────────────────────────────────────────────────────────────╮
+# │ cmip_validate                                         (updated 2026-08)    │
+# │                                                                            │
+# │ Author:  Ramiro Checa-Garcia (KNMI)                                        │
+# │ Purpose: - (Re)create emissions_stats CSVs files from archived tar/tgz with│
+# │            processed NetCDF files.                                         │
+# │          - Diff two of those tar archives                                  │
+# │          - Compare outputs across tool versions/datasets to monitor        │
+# │            consistency.                                                    │
+# │ LLMs: Long prints are created by LLMs under human description of the method│
+# │       then reviewed and edited by human.                                   │
+# ╰────────────────────────────────────────────────────────────────────────────╯
+
+#---[ IMPORTS ]-----------------------------------------------------------------
+
+import sys
+
+sys.dont_write_bytecode = True
+
+# Note that cli_validate.py and server_env.py used by cmip_check is not  
+# requesting python 3.11 (should work in python 3 <= 3.10) becuse we  
+# checked below actually if we have a python version after 3.100. 
+#
+# Other parts of the tool like reading TOML require python 3.11 stdlib. 
+
+import lib.cli_validate as cli_validate
+import lib.server_env as server_env
+
+#---[ Main ]--------------------------------------------------------------------
+
+if __name__ == '__main__':
+    args = cli_validate.cli_arguments_validate()
+    import lib.aux as aux
+    print(aux.banner("cmip_validate"))
+    print(" -------[ cmip-validate : evaluation env...]---------------------\n")
+    problems = server_env.check_environment(verbose=args.verbose,
+                commands=args.timeseries is None and args.plotcompare is None)
+    if problems:
+        server_env.print_problems_and_exit(problems, tool_name="cmip_validate")
+
+    import os
+    import shutil
+    import tempfile
+
+    import lib.ecfs as ecfs
+    import lib.aux as aux
+    from lib._version import __version__
+    from lib.validate_tar import build_stats_from_tar
+    from lib.compare_tar import compare_tars
+
+    print("")
+    print(aux.pinfo(f" Version:  ") + __version__)
+    print(aux.pinfo(f" Outdir :  ") + args.outdir)
+
+    # Only reads already-written CSVs (no tar arch., temp dirs or ecfs)
+    if args.timeseries is not None:
+        from lib.timeseries import build_timeseries
+
+        print(aux.pshow("\n ------ Time series from emissions_stats CSVs ---------------------"))
+        print(aux.pinfo(f" Input dir:  ") + args.timeseries)
+        print(aux.pshow(" ------------------------------------------------------------------"))
+        build_timeseries(args.timeseries, outdir=args.outdir, name=args.name,
+                         log=args.log, seasonal=args.seasonal, verbose=args.verbose)
+        sys.exit(0)
+
+    # Only reads diff_stats CSVs of previous --compare runs !!
+    if args.plotcompare is not None:
+        from lib.plotcompare import plot_compare
+
+        print(aux.pshow("\n ------ Plots of --compare results ------------------------------"))
+        for d in args.plotcompare:
+            print(aux.pinfo(f" Compare dir:  ") + d)
+        print(aux.pshow(" ------------------------------------------------------------------"))
+        plot_compare(args.plotcompare, outdir=args.outdir, name=args.name, log=args.log, verbose=args.verbose)
+        sys.exit(0)
+
+    # Report as soon as possible in which disk any temporal extraction dirs are
+    # created. Otherwise the tempfile.mkdtemp's target would be "hidden" until 
+    # we have a path in an [ecfs] or failures like "Disk quota exceeded".
+    # (improvement suggested by LLMs when asking defensive programming approach)
+    tmp_root = aux.default_tmp_root()
+    if tmp_root:
+        print(aux.pinfo(f" TmpRoot:  ") + tmp_root + aux.pinfo(" (from $SCRATCH)"))
+    else:
+        print(aux.pwarn(f" TmpRoot:  ") + tempfile.gettempdir()
+              + aux.pwarn(" ($SCRATCH not set or not a directory -- using system default, may be small/quota-limited)"))
+
+    # A user-given --ecfs-cache persists across runs and is never removed here
+    # (that's the police adopted at lib/ecfs.py). Without it, ecfs fetches land in a
+    # fresh temp dir that's cleaned up below unless --keep is set.
+    ecfs_dest = args.ecfs_cache
+    ecfs_tmp_owned = ecfs_dest is None
+    requested_paths = args.compare if args.compare is not None else [args.tgz]
+    fetches_from_ecfs = any(ecfs.is_ecfs_path(p) for p in requested_paths)
+    if ecfs_tmp_owned and fetches_from_ecfs:
+        suggested_cache = os.path.join(tmp_root, "ecfs_cache") if tmp_root else None
+        print(aux.pwarn(" Note:     ") + "no --ecfs-cache given, so the ec:/... download(s) below "
+              "will be deleted once this run finishes.")
+        if suggested_cache:
+            print(aux.pinfo("           ") + f"To keep them for a repeat comparison, re-run with: "
+                  f"--ecfs-cache {suggested_cache}")
+    if ecfs_tmp_owned:
+        ecfs_dest = tempfile.mkdtemp(prefix="cmip_validate_ecfs_", dir=aux.default_tmp_root())
+
+    try:
+        if args.compare is not None:
+            tgz_a = ecfs.resolve_local_path(args.compare[0], ecfs_dest)
+            tgz_b = ecfs.resolve_local_path(args.compare[1], ecfs_dest)
+
+            print(aux.pshow("\n ------ Comparing two archived tars ------------------------------"))
+            print(aux.pinfo(f" Archive A (test)     :") + f" {args.compare[0]}")
+            print(aux.pinfo(f" Archive B (reference):") + f" {args.compare[1]}")
+            if args.legacyref:
+                print(aux.pinfo(f" Compare mode:         ") + "--legacyref (B is legacy, A is current)")
+            elif args.legacyboth:
+                print(aux.pinfo(f" Compare mode:         ") + "--legacyboth (both archives are legacy)")
+            elif args.historicalref:
+                print(aux.pinfo(f" Compare mode:         ") + "--historicalref (B is historical, A is scenariomip)")
+            print(aux.pshow(" ------------------------------------------------------------------"))
+            print(
+                " For every (species, dataset, year) found in either archive, each shared\n"
+                " sector is compared in two ways: \n" 
+                " (1) its annual total mass (Tg), from each month's `cdo fldint` spatial \n"
+                "     integral (not a mean as fldint gives the total mass emitted, a more\n"
+                "     physically meaningful quantity) summed over the year, shown below  \n"
+                "     as A=.../B=...\n"
+                " (2) the raw per-gridpoint,per-month field values diffed array-to-array,\n"
+                "     reported as mean_abs_diff and max_abs_diff. The idea is to detect \n"
+                "     spatial/temporal differences that could cancel out in the Tg total.\n"
+                " A sector/species/year found only on one side is reported explicitly, so\n"
+                " nont skipped with information to user.\n\n"
+                " How the Tg total in (1) is derived: fldint's spatial integral turns each\n"
+                " month's flux field (kg m-2 s-1) into a rate (kg/s). Each month's rate is\n"
+                " then multiplied by that month's length in seconds in the file's own\n"
+                " calendar (28-31 days; no 29 February in 365_day files such as IIASA's),\n"
+                " giving that month's mass in kg, converted to Tg (*1e-9, 1 Tg = 1e9 kg).\n"
+                " The annual total is the sum of these 12 already-converted monthly Tg\n"
+                " values, but not the annual mean rate times the year's total seconds.\n"
+                " Motivation is that emission rate varies seasonally, therefore per-month \n"
+                " conversion-then-sum is more accurate. (see compute_file_stats_rows in\n"
+                " lib/emissions_stats.py).\n")
+
+            if args.historicalref:
+                print(
+                    " --historicalref     specifics: A and B come from genuinely different\n"
+                    "    raw datasets (CEDS historical vs IIASA-IAMC scenariomip), so exact\n"
+                    "    per-cell agreement was never expected. The\n"
+                    "    [consistent]/[similar]/[DIFFERENT] tag on each sector line judges\n"
+                    "    the field's *overall* agreement, not a single worst cell.\n"
+                    "\n"
+                    " Define:\n"
+                    " - F(lat, lon, month) = flux(lat, lon, month) [kg m-2 s-1] *\n"
+                    "                      area(lat, lon) [m2] \n"
+                    " - The mass rate [kg/s] that one grid cell contributes in one month. \n"
+                    " - mean_abs_diff/max_abs_diff are computed on F, deliberately NOT the\n"
+                    "   raw flux: two sides being compared can be on different-resolution \n"
+                    "   grids (B gets conservatively regridded in A's grid first when that\n"
+                    "   happens, find 'grid mismatch' info), so their grid cells represent\n"
+                    "   different areas. Multiplying by area first makes the comparison a \n"
+                    "   mass rate, independent of grid-cell area (and also of resolution) \n"
+                    "   either side happens to use:\n"
+                    " - mean_abs_diff [kg/s] -> the plain average of |F_A - F_B| over every\n"
+                    "     grid cell and month (every cell/month counted equally; the area\n"
+                    "     weighting already happened once, inside F ; this is not a second,\n"
+                    "     further-weighted spatial average).\n"
+                    " - rel= [dimensionless] -> mean_abs_diff divided by a stable magnitude\n"
+                    "     reference: the sector's total annual mass (Tg, the same total as\n"
+                    "     A=.../B=... below) converted to an equivalent average kg/s. This\n"
+                    "     ratio is what [consistent]/[DIFFERENT] is actually decided on:\n"
+                    "     below a 2e-4 relative threshold (RAW_CONSISTENT_RELTOL in\n"
+                    "     lib/compare_tar.py), the field agrees overall and is reported\n"
+                    "     [consistent] even though it isn't bit-identical. (Deliberately not\n"
+                    "     normalized by the per-cell mean |F| -- emissions are extremely\n"
+                    "     spatially concentrated, so that mean is dragged down by however\n"
+                    "     sparse the *particular species* is, distorting the ratio species to\n"
+                    "     species for the same absolute noise; the total mass doesn't have\n"
+                    "     that problem.)\n"
+                    "\n"
+                    " A sector that fails that 2e-4 bar isn't automatically [DIFFERENT]: it's\n"
+                    " [similar] instead if the annual Tg totals (A=.../B=... below) still\n"
+                    " agree within 5% (TOTAL_TG_CONSISTENT_PCT in lib/compare_tar.py) --\n"
+                    " same overall mass, but the spatial/temporal *pattern* doesn't match as\n"
+                    " closely (plausibly just placement uncertainty on a species neither\n"
+                    " source pins down precisely, rather than a real disagreement -- seen on\n"
+                    " real data for VOC species, where a sector's total agreed to within\n"
+                    " ~0.6% but its pattern still failed the mean_abs_diff bar). Only when the\n"
+                    " totals themselves disagree by more than that is a sector [DIFFERENT].\n"
+                    " Note this can't tell you *where* the pattern differs -- a real spatial\n"
+                    " diff map would be needed for that, this is a scalar summary only.\n"
+                    "   max_abs_diff [kg/s] -- the single largest |F_A - F_B| across every\n"
+                    "     grid cell and month (one worst cell/month, not an average).\n"
+                    "   rel= [dimensionless] -- max_abs_diff divided by the average of both\n"
+                    "     sides' peak |F| magnitude. Diagnostic only -- doesn't decide\n"
+                    "     consistent/different by itself, but a large value here next to a\n"
+                    "     small mean_abs_diff flags a genuine localized outlier worth a closer\n"
+                    "     look (e.g. one bad grid cell), rather than a real overall difference.\n"
+                    " A=.../B=... on each sector line is still the annual Tg total from (1)\n"
+                    " above -- a different quantity, in different units (Tg, not kg/s), from\n"
+                    " these two per-cell/month diagnostics.\n"
+                    "\n"
+                    " Without --historicalref (legacyref/legacyboth/plain --compare), none of\n"
+                    " this applies: both sides are expected to come from the same raw data,\n"
+                    " so [consistent] there means bit-identical, full stop, and only\n"
+                    " max_abs_diff/mean_abs_diff are shown, in the raw flux's own units\n"
+                    " [kg m-2 s-1] -- not area-weighted, no rel= -- since any divergence,\n"
+                    " however small, is a real regression signal on its own.\n")
+
+            compare_tars(
+                tgz_a, tgz_b, outdir=args.outdir, name=args.name,
+                verbose=args.verbose, keep=args.keep,
+                legacyref=args.legacyref, legacyboth=args.legacyboth,
+                historicalref=args.historicalref
+            )
+        else:
+            tgz = ecfs.resolve_local_path(args.tgz, ecfs_dest)
+
+            print(aux.pshow("\n ------ Recreating emissions_stats CSVs from an archived tar -----"))
+            print(aux.pinfo(f" Archive:  ") + args.tgz)
+            print(aux.pshow(" ------------------------------------------------------------------"))
+
+            build_stats_from_tar(
+                tgz, outdir=args.outdir, name=args.name,
+                verbose=args.verbose, keep=args.keep
+            )
+    finally:
+        if ecfs_tmp_owned:
+            if args.keep:
+                print(aux.pinfo(f" Kept ecfs downloads (if any) at {ecfs_dest}"))
+            else:
+                shutil.rmtree(ecfs_dest, ignore_errors=True)

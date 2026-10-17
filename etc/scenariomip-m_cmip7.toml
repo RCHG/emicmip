@@ -1,0 +1,159 @@
+# scenariomip-m_cmip7.toml                             (updated 2026-10)
+#
+# Author:  Ramiro Checa-Garcia (KNMI)
+# Purpose: Configuration for ScenarioMIP future emissions processing
+#
+# Note:  Version fields are lists - code tries each in order until found.
+#        species_filename_map controls output filename for each species.
+#
+
+[CMIP7]
+    # Settings of paths
+    rawpath           = "/hpcperm/{user}/raw_emissions/"
+    # One propath/outpath per scenario: the four can run at the same time
+    # without sharing temporary files or emissions_stats CSVs (same names).
+    propath           = "/ec/res4/scratch/{user}/emissions/cmip7scenariomip/m/temp/"
+    outpath           = "/ec/res4/scratch/{user}/emissions/cmip7scenariomip/m"
+    tar_store         = { cmd = "ecp", path = "ec:/{user}/emissions/cmip7scenariomip/" }
+    tar_common        = "ScenarioMIPm-a"
+
+    # General info of emissions dataset
+    origin            = "input4MIPs"
+    category          = "emissions"
+    target_mip        = "ScenarioMIP"
+    outputname        = "ScenarioMIPm"
+
+    # -------------------------------------------------------------------
+    # Anthropogenic surface emissions
+    # -------------------------------------------------------------------
+    [CMIP7.anthro]
+        version       = ["IIASA-IAMC-m-1-1-1"]
+        path          = "cmip7/ScenarioMIP_IIASA-IAMC-m-1-1-1"
+        sectors       = ["AGR", "ENE", "IND", "TRA", "RCO", "SLV", "WST", "SHP"]
+        aggregate     = [
+            { target = "ALL", from = ["AGR", "ENE", "IND", "TRA", "RCO", "SLV", "WST", "SHP"] }
+        ]
+        # ALL (sum of the 8 sectors) kept, as in historical
+        resol         = ["global_0.5", "05x05"]
+        years         = ["202201-210012"]
+        # raw files: 2022-2025, then every 5 years; years in between interpolated
+        interpolate_years = true
+
+        [CMIP7.anthro.subsets.em-anthro]
+            suffix    = "anthro-surf"
+            species   = ["BC", "CH4", "N2O", "NH3", "NMVOC", "NOx", "OC", "SO2", "CO", "CO2"]
+
+        [CMIP7.anthro.subsets."em-speciated-VOC-anthro"]
+            suffix    = "anthro-surf"
+            species   = [
+                "VOC01-alcohols", "VOC02-ethane",
+                "VOC03-propane", "VOC04-butanes", "VOC05-pentanes",
+                "VOC06-hexanes-pl", "VOC07-ethene", "VOC08-propene",
+                "VOC09-ethyne", "VOC12-other-alke", "VOC13-benzene",
+                "VOC14-toluene", "VOC15-xylene", "VOC16-trimethylb",
+                "VOC17-other-arom", "VOC18-esters", "VOC19-ethers",
+                "VOC20-chlorinate", "VOC21-methanal", "VOC22-other-alka",
+                "VOC23-ketones", "VOC24-acids", "VOC25-other-voc"
+            ]
+
+        [CMIP7.anthro.subsets."em-speciated-VOC-anthro".species_filename_map]
+            "VOC01-alcohols"  = "VOC01"
+            "VOC02-ethane"    = "VOC02"
+            "VOC03-propane"   = "VOC03"
+            "VOC04-butanes"   = "VOC04"
+            "VOC05-pentanes"  = "VOC05"
+            "VOC06-hexanes-pl" = "VOC06"
+            "VOC07-ethene"    = "VOC07"
+            "VOC08-propene"   = "VOC08"
+            "VOC09-ethyne"    = "VOC09"
+            "VOC12-other-alke" = "VOC12"
+            "VOC13-benzene"   = "VOC13"
+            "VOC14-toluene"   = "VOC14"
+            "VOC15-xylene"    = "VOC15"
+            "VOC16-trimethylb" = "VOC16"
+            "VOC17-other-arom" = "VOC17"
+            "VOC18-esters"    = "VOC18"
+            "VOC19-ethers"    = "VOC19"
+            "VOC20-chlorinate" = "VOC20"
+            "VOC21-methanal"  = "VOC21"
+            "VOC22-other-alka" = "VOC22"
+            "VOC23-ketones"   = "VOC23"
+            "VOC24-acids"     = "VOC24"
+            "VOC25-other-voc" = "VOC25"
+
+    # -------------------------------------------------------------------
+    # Anthropogenic aviation emissions
+    # -------------------------------------------------------------------
+    [CMIP7.aviation]
+        # 1-1-2: corrected aviation seasonality (1-1-1 for the other groups)
+        version       = ["IIASA-IAMC-m-1-1-2"]
+        path          = "cmip7/ScenarioMIP_IIASA-IAMC-m-1-1-2"
+        sectors       = ["AVI"]
+        resol         = ["global_0.5", "05x05"]
+        years         = ["202201-210012"]
+        # raw files: 2022-2025, then every 5 years; years in between interpolated
+        interpolate_years = true
+
+        [CMIP7.aviation.subsets.em-AIR-anthro]
+            suffix    = "anthro-air"
+            species   = ["BC", "CO", "N2O", "NH3", "NMVOC", "NOx", "OC", "SO2", "CO2", "CH4"]
+
+    # -------------------------------------------------------------------
+    # Biomass burning emissions
+    # -------------------------------------------------------------------
+    [CMIP7.bburning]
+        version       = ["IIASA-IAMC-m-1-1-1"]
+        path          = "cmip7/ScenarioMIP_IIASA-IAMC-m-1-1-1"
+        sectors       = ["bbAGRW", "bbFORE", "bbGRSS", "bbPEAT"]
+        aggregate     = [
+            { target = "bbALL", from = ["bbAGRW", "bbFORE", "bbGRSS", "bbPEAT"] }
+        ]
+        resol         = ["global_0.5", "05x05"]
+        years         = ["202201-210012"]
+        # raw files: 2022-2025, then every 5 years; years in between interpolated
+        interpolate_years = true
+
+        [CMIP7.bburning.subsets.em-openburning]
+            # no CO2: not provided by ScenarioMIP openburning
+            suffix    = "bburning"
+            species   = ["BC", "CH4", "CO", "H2", "N2O", "NH3",
+                         "NMVOCbulk", "NOx", "OC", "SO2"]
+
+        [CMIP7.bburning.subsets."em-speciated-VOC-openburning"]
+            suffix    = "bburning"
+            species   = [
+                "NMVOC-C10H16", "NMVOC-C2H2", "NMVOC-C2H4", "NMVOC-C2H4O",
+                "NMVOC-C2H5OH", "NMVOC-C2H6", "NMVOC-C2H6S", "NMVOC-C3H6",
+                "NMVOC-C3H6O", "NMVOC-C3H8", "NMVOC-C5H8", "NMVOC-C6H6",
+                "NMVOC-C7H8", "NMVOC-C8H10", "NMVOC-CH2O", "NMVOC-CH3COCHO",
+                "NMVOC-CH3COOH", "NMVOC-CH3OH", "NMVOC-HCN", "NMVOC-HCOOH",
+                "NMVOC-HigherAlkanes", "NMVOC-HigherAlkenes",
+                "NMVOC-HOCH2CHO", "NMVOC-MEK", "NMVOC-Toluenelump"
+            ]
+
+        [CMIP7.bburning.subsets."em-speciated-VOC-openburning".species_filename_map]
+            "NMVOC-C10H16"        = "C10H16"
+            "NMVOC-C2H2"          = "C2H2"
+            "NMVOC-C2H4"          = "C2H4"
+            "NMVOC-C2H4O"         = "C2H4O"
+            "NMVOC-C2H5OH"        = "C2H5OH"
+            "NMVOC-C2H6"          = "C2H6"
+            "NMVOC-C2H6S"         = "C2H6S"
+            "NMVOC-C3H6"          = "C3H6"
+            "NMVOC-C3H6O"         = "C3H6O"
+            "NMVOC-C3H8"          = "C3H8"
+            "NMVOC-C5H8"          = "C5H8"
+            "NMVOC-C6H6"          = "C6H6"
+            "NMVOC-C7H8"          = "C7H8"
+            "NMVOC-C8H10"         = "C8H10"
+            "NMVOC-CH2O"          = "CH2O"
+            "NMVOC-CH3COCHO"      = "CH3COCHO"
+            "NMVOC-CH3COOH"       = "CH3COOH"
+            "NMVOC-CH3OH"         = "CH3OH"
+            "NMVOC-HCN"           = "HCN"
+            "NMVOC-HCOOH"         = "HCOOH"
+            "NMVOC-HigherAlkanes" = "HigherAlkanes"
+            "NMVOC-HigherAlkenes" = "HigherAlkenes"
+            "NMVOC-HOCH2CHO"      = "HOCH2CHO"
+            "NMVOC-MEK"           = "MEK"
+            "NMVOC-Toluenelump"   = "Toluenelump"

@@ -1,0 +1,146 @@
+#!/usr/bin/env python3
+# ╭────────────────────────────────────────────────────────────────────────────╮
+# │ cmip_check                                            (updated 2026-10)    │
+# │                                                                            │
+# │ Author:  Ramiro Checa-Garcia (KNMI)                                        │
+# │ Purpose: Using a config (etc/*.toml), it reports years already created     │
+# │          (store tars, plain and also -ec3, local files). If we use the     │
+# │          --deep option then it shows also how each tar was done. It        │
+# │          reads the toml with headers added which is in tar for recent      │
+# │          productions.                                                      │
+# │ LLMs: many changes added by LLMs under human supervision.                  │
+# │       Fully human reviewed                                                 │
+# ╰────────────────────────────────────────────────────────────────────────────╯
+
+#---[ IMPORTS ]-----------------------------------------------------------------
+
+import sys
+
+sys.dont_write_bytecode = True  # to avoid nasty __pycache__ generation...
+
+import lib.cli_check as cli_check
+import lib.server_env as server_env
+
+#---[ Main ]--------------------------------------------------------------------
+
+if __name__ == '__main__':
+    args = cli_check.cli_arguments_check()
+    import lib.aux as aux
+    print(aux.banner("cmip_check")) # Just lists files & read tars: no cdo/nco.
+    problems = server_env.check_environment(verbose=args.verbose, commands=False)
+    if problems:
+        server_env.print_problems_and_exit(problems, tool_name="cmip_check")
+
+    import os
+    import shutil
+    import tempfile
+
+    import lib.aux as aux
+    import lib.check_store as check
+    from lib._version import __version__
+
+    import re
+    def split_tar(text):
+        """'X-a', 'X-a_2024.tar' or 'X-a-ec3_2024.tar' -> ('X-a', '2024' or None)"""
+        m = re.fullmatch(r"(?P<name>.+?)(?:-ec3)?(?:_(?P<year>\d{4})\.tar)?", os.path.basename(text))
+        return m.group("name"), m.group("year")
+    tar_given = tar_dir = None
+    if args.tarpath:
+        tar_dir = os.path.dirname(args.tarpath)
+        if not tar_dir:
+            print(aux.perror("\n--tarpath needs the full path of the tar, e.g. "
+                             "ec:/<user>/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_1850.tar "
+))
+            sys.exit(1)
+        tar_given, year = split_tar(args.tarpath)
+        if year and args.years is None:
+            args.years = year
+    if args.toml is None and not tar_dir:
+        print(aux.perror("\nGive a config with --toml, or one tar with --tarpath "
+                         "(e.g. --tarpath ec:/<user>/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_1850.tar)."))
+        sys.exit(1)
+    if args.toml is not None and not os.path.isfile(args.toml):
+        print(aux.perror(f"\n{args.toml} not found."))
+        sys.exit(1)
+    if args.toml is None:
+        args.deep = True      # only a tar: what matters is what is inside it
+    if args.deep and args.years is None:
+        print(aux.perror("\nPlease provide the years to inspect with --years (e.g. --years 1850,2022)."))
+        sys.exit(1)
+
+    if args.toml is not None:
+        cmip_key, datainfo = check.load_toml(args.toml)
+        years = check.expected_years(datainfo)
+        if tar_given:
+            datainfo["tar_common"] = tar_given   # the tar of --tarpath, compared with this toml
+        if tar_dir:
+            datainfo["tar_store"] = {"cmd": "ecp" if args.tarpath.startswith("ec:") else "cp", "path": tar_dir + "/"}
+    else:
+        # only a tar: the store is its folder; what the tar holds comes from its own toml (--deep)
+        cmip_key, years = "-", []
+        datainfo = {"tar_common": tar_given,
+                    "tar_store": {"cmd": "ecp" if args.tarpath.startswith("ec:") else "cp", "path": tar_dir + "/"}}
+    if args.years is not None:
+        requested = check.parse_years(args.years)
+        outside = [y for y in requested if y not in years]
+        if outside and years:
+            print(aux.pwarn(f" Note: {check.compress_years(outside)} falls outside toml config's years, checked anyway"))
+        years = requested
+
+    tar_store = datainfo.get("tar_store")
+    outpath = args.outpath or datainfo.get("outpath", "")
+
+    print("")
+    print(aux.pinfo(" emicmip :  ") + f"{__version__}  (code version)")
+    if args.toml and args.tarpath:
+        config_txt = f"{args.toml} [{cmip_key}]  (reference given by the user: compared with the toml inside the tar)"
+    else:
+        config_txt = f"{args.toml} [{cmip_key}]" if args.toml else "none (only --tarpath)"
+    print(aux.pinfo(" Config  :  ") + config_txt)
+    print(aux.pinfo(" Tar name:  ") + f"{datainfo['tar_common']}[-ec3]_<year>.tar   (<name>-<revision>; -ec3: run with --ecearth3)"
+          + ("  [--tarpath]" if args.tarpath else ""))
+    print(aux.pinfo(" Store   :  ") + (f"{tar_store['path']} (copied with {tar_store['cmd']})" if tar_store else "none in config")
+          + ("  (folder of --tarpath, not the toml's store)" if args.tarpath else ""))
+    if outpath and not args.tarpath:
+        print(aux.pinfo(" Outpath :  ") + outpath)
+    print(aux.pinfo(" Years   :  ") + check.compress_years(years))
+
+    store = None
+    if tar_store:
+        entries = check.list_store(tar_store, verbose=args.verbose)
+        if entries is None:
+            print(aux.pwarn(" Apologies, could not list the store; reporting local files only."))
+        else:
+            store = check.tars_by_year(entries, datainfo["tar_common"])
+            extra = sorted(y for y in store if y not in years)
+            if extra and args.years is None:
+                print(aux.pwarn(f" Note: store also has tars for {check.compress_years(extra)}, outside the config's years"))
+
+    if args.toml is not None and not args.tarpath:
+        local = check.local_status(outpath, datainfo, years)
+        if not os.path.isdir(outpath):
+            print(aux.pwarn(f" Outpath {outpath} not found (maybe scratch was cleaned/purged): only outs/validation CSVs reported locally."))
+    else:
+        local = {}
+    check.print_report(years, store, local, ngroups=len(check.config_groups(datainfo)))
+
+    if args.deep:
+        if store is None:
+            print(aux.perror("\n--deep needs the store listing, which failed above."))
+            sys.exit(1)
+        cache = args.ecfs_cache
+        owned = cache is None
+        if owned:
+            cache = tempfile.mkdtemp(prefix="cmip_check_ecfs_", dir=aux.default_tmp_root())
+        try:
+            check.deep_check(years, store, datainfo, args.toml, cache, verbose=args.verbose)
+        finally:
+            if owned:
+                if args.keep:
+                    print(aux.pinfo(f"\n Kept fetched tars at {cache}"))
+                else:
+                    shutil.rmtree(cache, ignore_errors=True)
+
+    print("\n Info/Checks reported. Have a nice day!")
+
+

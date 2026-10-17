@@ -1,0 +1,7 @@
+# Python
+__pycache__/
+
+# Build outputs: Sphinx web pages, PDF copied in by the GitHub Action, cheatsheet PDF
+doc/web/_build/
+doc/web/_extra/
+doc/cheatsheet/*.pdf

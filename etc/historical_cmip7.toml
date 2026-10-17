@@ -1,0 +1,152 @@
+# historical_cmip7.toml                                (updated 2026-10)
+#
+# Author:  Ramiro Checa-Garcia (KNMI)
+# Purpose: Configuration for historical emissions processing
+#
+# Note:  Version fields are lists - code tries each in order until found.
+#        species_filename_map controls output filename for each species.
+#
+
+[CMIP7]
+    # Settings of paths
+    rawpath           = "/hpcperm/{user}/raw_emissions/"
+    propath           = "/ec/res4/scratch/{user}/emissions/cmip7hist/temp/"
+    outpath           = "/ec/res4/scratch/{user}/emissions/cmip7hist"
+    tar_store         = { cmd = "ecp", path = "ec:/{user}/emissions/cmip7hist/" }
+    tar_common        = "CMIP7hist-2025-04-18d"
+
+    # General info of emissions dataset
+    origin            = "input4MIPs"
+    category          = "emissions"
+    target_mip        = "CMIP"
+    outputname        = "CMIP7-historical"
+
+    # -------------------------------------------------------------------
+    # Anthropogenic surface emissions
+    # -------------------------------------------------------------------
+    [CMIP7.anthro]
+        version       = ["CEDS-CMIP-2025-04-18", "CEDS-CMIP-2025-04-18-supplemental"]
+        path          = "cmip7/historical/CEDS-CMIP-2025-04-18/"
+        sectors       = ["AGR", "ENE", "IND", "TRA", "RCO", "SLV", "WST", "SHP"]
+        aggregate     = [
+            { target = "ALL", from = ["AGR", "ENE", "IND", "TRA", "RCO", "SLV", "WST", "SHP"] }
+        ]
+        resol         = ["global_0.5", "05x05"]
+        years         = [
+            "175001-179912", "180001-184912", "185001-189912",
+            "190001-194912", "195001-199912", "200001-202312"
+        ]
+
+        [CMIP7.anthro.subsets.em-anthro]
+            suffix    = "anthro-surf"
+            # CH4 and N2O: 1750-1999 from the -supplemental files, 2000-2023 main
+            species   = ["BC", "CH4", "N2O", "NH3", "NMVOC", "NOx", "OC", "SO2", "CO", "CO2"]
+
+        [CMIP7.anthro.subsets."em-speciated-VOC-anthro"]
+            suffix    = "anthro-surf"
+            species   = [
+                "VOC01-alcohols", "VOC02-ethane",
+                "VOC03-propane", "VOC04-butanes", "VOC05-pentanes",
+                "VOC06-hexanes-pl", "VOC07-ethene", "VOC08-propene",
+                "VOC09-ethyne", "VOC12-other-alke", "VOC13-benzene",
+                "VOC14-toluene", "VOC15-xylene", "VOC16-trimethylb",
+                "VOC17-other-arom", "VOC18-esters", "VOC19-ethers",
+                "VOC20-chlorinate", "VOC21-methanal", "VOC22-other-alka",
+                "VOC23-ketones", "VOC24-acids", "VOC25-other-voc"
+            ]
+
+        [CMIP7.anthro.subsets."em-speciated-VOC-anthro".species_filename_map]
+            "VOC01-alcohols"  = "VOC01"
+            "VOC02-ethane"    = "VOC02"
+            "VOC03-propane"   = "VOC03"
+            "VOC04-butanes"   = "VOC04"
+            "VOC05-pentanes"  = "VOC05"
+            "VOC06-hexanes-pl" = "VOC06"
+            "VOC07-ethene"    = "VOC07"
+            "VOC08-propene"   = "VOC08"
+            "VOC09-ethyne"    = "VOC09"
+            "VOC12-other-alke" = "VOC12"
+            "VOC13-benzene"   = "VOC13"
+            "VOC14-toluene"   = "VOC14"
+            "VOC15-xylene"    = "VOC15"
+            "VOC16-trimethylb" = "VOC16"
+            "VOC17-other-arom" = "VOC17"
+            "VOC18-esters"    = "VOC18"
+            "VOC19-ethers"    = "VOC19"
+            "VOC20-chlorinate" = "VOC20"
+            "VOC21-methanal"  = "VOC21"
+            "VOC22-other-alka" = "VOC22"
+            "VOC23-ketones"   = "VOC23"
+            "VOC24-acids"     = "VOC24"
+            "VOC25-other-voc" = "VOC25"
+
+        [CMIP7.anthro.subsets.em-SOLID-BIOFUEL-anthro]
+            suffix    = "anthro-biof"
+            # part of anthro-surf, not an extra source
+            species   = ["BC", "CH4", "CO", "CO2", "N2O", "NH3", "NMVOC", "NOx", "OC", "SO2"]
+            # CEDS gives CH4 and N2O solid biofuel only from 1970, as 1970-1999
+            extra_years = [
+                { period = "197001-199912", species = ["CH4", "N2O"] },
+            ]
+
+        # Fallback: NMVOC as the sum of the 23 VOCs, only if its raw file is missing
+        [[CMIP7.anthro.derivespecies]]
+            target          = "NMVOC"
+            suffix          = "anthro-surf"
+            from            = [
+                "VOC01", "VOC02", "VOC03", "VOC04", "VOC05", "VOC06", "VOC07",
+                "VOC08", "VOC09", "VOC12", "VOC13", "VOC14", "VOC15", "VOC16",
+                "VOC17", "VOC18", "VOC19", "VOC20", "VOC21", "VOC22", "VOC23",
+                "VOC24", "VOC25"
+            ]
+            only_if_missing = true   # skipped when the raw NMVOC file exists
+
+    # -------------------------------------------------------------------
+    # Anthropogenic aviation emissions
+    # -------------------------------------------------------------------
+    [CMIP7.aviation]
+        version       = ["CEDS-CMIP-2025-04-18"]
+        path          = "cmip7/historical/CEDS-CMIP-2025-04-18/"
+        sectors       = ["AVI"]
+        resol         = ["global_0.5", "05x05"]
+        years         = [
+            "175001-179912", "180001-184912", "185001-189912",
+            "190001-194912", "195001-199912", "200001-202312"
+        ]
+
+        [CMIP7.aviation.subsets.em-AIR-anthro]
+            suffix    = "anthro-air"
+            species   = ["BC", "CO", "NH3", "NMVOC", "NOx", "OC", "SO2", "CO2", "CH4", "N2O"]
+            # CEDS gives CH4 and N2O aviation only from 1970, as 1970-1999 (earlier
+            # years are reported as missing at the end of the run)
+            extra_years = [
+                { period = "197001-199912", species = ["CH4", "N2O"] },
+            ]
+
+    # -------------------------------------------------------------------
+    # Biomass burning emissions
+    # -------------------------------------------------------------------
+    [CMIP7.bburning]
+        version       = ["DRES-CMIP-BB4CMIP7-2-1"]
+        path          = "cmip7/historical/BB4CMIP7-2-1/"
+        sectors       = ["bbALL"]
+        resol         = ["global_0.25", "025x025"]
+        years         = ["175001-189912", "190001-202312"]
+
+        [CMIP7.bburning.subsets.none]
+            suffix    = "bburning"
+            species   = [
+                "BC", "C10H16", "C2H2", "C2H4", "C2H4O", "C2H5OH", "C2H6",
+                "C2H6S", "C3H6", "C3H6O", "C3H8", "C5H8", "C6H6", "C7H8",
+                "C8H10", "CH2O", "CH3COCHO", "CH3COOH", "CH3OH", "CH4",
+                "CO", "H2", "HCOOH", "HigherAlkanes", "HigherAlkenes",
+                "HOCH2CHO", "MEK", "NH3", "CO2",
+                "NOxasNO2", "NOx", "OC", "SO2", "Toluenelump",
+                "HCN", "N2O", "NMVOCbulk"
+            ]
+
+        [[CMIP7.bburning.scaling]]
+            target  = "bbPEAT"
+            from    = "bbALL"
+            species = ["CO2"]
+            file    = "CO2percentagePEAT_input4MIPs_emissions_CMIP_DRES-CMIP-BB4CMIP7-2-1_gn_175001-202312.nc"
