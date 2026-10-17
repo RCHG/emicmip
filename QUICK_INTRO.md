@@ -94,8 +94,11 @@ make -n cmip7-historical YEARS=1850-1855       # dry-run: print the command only
 ```
 
 - `--nccompress`: lossless compression, 7-10 times smaller tars
-- `--overwrite`: no files reused from earlier runs
+- `--overwrite`: no files reused from earlier runs, and a tar already in an ECFS store is
+  replaced (`ecp -o`; without it `ecp` keeps the existing tar)
 - `--cleanafter`: frees `outpath` once each tar is in the store.
+- `SUBMIT=sbatch` runs the target as a Slurm job; its log goes to
+  `outs/logs/<target>_<jobid>.log` (folder created if missing; `LOGDIR=` to change it).
 - `GROUPS`, `STORE` and `OPTS` override the defaults; with no `YEARS`, all years of the
   config are processed. Any other variable (e.g. a typo like `YAERS=`) stops `make`.
 

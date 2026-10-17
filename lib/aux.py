@@ -429,8 +429,12 @@ def tar_store_byyear(args: argparse.Namespace, datainfo: dict, lstore_nc: list[s
                     xx=datainfo["tar_store"]
                     local_tar = os.path.join(tardir, tarf_name)
                     remote_tar = os.path.join(xx["path"], tarf_name)
-                    print(pshow(f"  using {xx['cmd']} {local_tar} {remote_tar}"))
-                    copied = subprocess.run([xx["cmd"], local_tar, remote_tar]).returncode == 0
+                    cmd = [xx["cmd"]]
+                    if getattr(args, "overwrite", False) and xx["cmd"] == "ecp":
+                        cmd.append("-o")               # ecp does not overwrite by default (-n)
+                    cmd += [local_tar, remote_tar]
+                    print(pshow(f"  using {' '.join(cmd)}"))
+                    copied = subprocess.run(cmd).returncode == 0
                     if not copied:
                         print(perror(f"  Copy to the store FAILED for {tarf_name}: the tar stays in {tardir}"
                                      + (" and nothing is removed (--cleanafter)." if getattr(args, "cleanafter", False) else ".")))

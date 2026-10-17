@@ -21,6 +21,8 @@ The official tars are produced as **a single run** per year, with all groups
   themselves; pass it so that every tar of a dataset is compressed.
 - `--overwrite`: recomputes every file. Without it, files already in `outpath` from an
   earlier run (another tool version or config) are reused and end up in the new tar.
+  It also replaces a tar already in an ECFS store (`ecp -o`); without it, `ecp` keeps
+  the existing tar.
 - single run: the tar of a year holds only the files of the run that created it, so
   all groups go in one run, not in separate runs.
 
