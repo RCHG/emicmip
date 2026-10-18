@@ -189,9 +189,12 @@ With the final datasets each scenario is compared with `CMIP7hist-2025-04-18d-ec
 | Scenario | Anthropogenic surface                          | Aviation                     | Biomass burning                  |
 |----------|------------------------------------------------|------------------------------|----------------------------------|
 | `m`      | equal to 6 significant figures; VOCs within 0.3 % | 0.17 % lower, every species | different (projection vs. observed fires) |
-| `h`      | _to be added after the production_             |                              |                                  |
-| `l`      | _to be added after the production_             |                              |                                  |
-| `vl`     | _to be added after the production_             |                              |                                  |
+| `h`      | same as `m`                                    | same as `m`                  | same as `m`                      |
+| `l`      | same as `m`                                    | same as `m`                  | same as `m`                      |
+| `vl`     | same as `m`                                    | same as `m`                  | same as `m`                      |
+
+In 2022 the comparison gives the same result for the four scenarios: the same annual
+totals for every species and sector.
 
 - Anthropogenic surface: IIASA is harmonized to CEDS in 2022, so the annual totals of
   every species and sector agree. The 23 speciated VOCs differ slightly by sector, while

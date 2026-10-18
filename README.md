@@ -1,6 +1,6 @@
 # emicmip
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23440591.svg)](https://doi.org/10.5281/zenodo.23440591)
+<!-- [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23440591.svg)](https://doi.org/10.5281/zenodo.23440591) -->
 
 ```
                     _                      _

@@ -21,10 +21,10 @@ one tested emission-specification file.
 | CMIP7 case                | Dataset (one tar per year)                    | Tested emission-specification file                                       |
 |---------------------------|-----------------------------------------------|--------------------------------------------------------------------------|
 | Historical                | `CMIP7hist-2025-04-18d-ec3_<YEAR>.tar`        | `cmip7_m7_simchem.emi`                                                   |
-| ScenarioMIP h (high)      | `ScenarioMIPh-a_<YEAR>.tar` (in preparation)  | `cmip7_scenariomip-h_m7_simchem.emi` (validated once data are prepared)  |
+| ScenarioMIP h (high)      | `ScenarioMIPh-a_<YEAR>.tar`                   | `cmip7_scenariomip-h_m7_simchem.emi` (as m; not run in OpenIFS yet)      |
 | ScenarioMIP m (medium)    | `ScenarioMIPm-a_<YEAR>.tar`                   | `cmip7_scenariomip-m_m7_simchem.emi`                                     |
-| ScenarioMIP l (low)       | `ScenarioMIPl-a_<YEAR>.tar` (in preparation)  | `cmip7_scenariomip-l_m7_simchem.emi` (validated once data are prepared)  |
-| ScenarioMIP vl (very low) | `ScenarioMIPvl-a_<YEAR>.tar` (in preparation) | `cmip7_scenariomip-vl_m7_simchem.emi` (validated once data are prepared) |
+| ScenarioMIP l (low)       | `ScenarioMIPl-a_<YEAR>.tar`                   | `cmip7_scenariomip-l_m7_simchem.emi` (as m; not run in OpenIFS yet)      |
+| ScenarioMIP vl (very low) | `ScenarioMIPvl-a_<YEAR>.tar`                  | `cmip7_scenariomip-vl_m7_simchem.emi` (as m; not run in OpenIFS yet)     |
 | Historical, legacy        | `CMIP7hist-2025-04-18c_<YEAR>.tar`            | `cmip7_m7_simchem_legacy_fixed.emi`                                      |
 
 ## What each dataset contains
