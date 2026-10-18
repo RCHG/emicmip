@@ -362,9 +362,13 @@ def inspect_tar(tar_path: str, toml_text: str, datainfo: dict) -> dict:
     Returns:
         {"header": {...}, "toml_name", "toml_same": bool|None,
          "subsets": {suffix: n_species}, "groups": [...], "missing_groups": [...],
-         "csv_groups": [...], "csv_missing": [...], "n_nc", "n_csv"}
+         "csv_groups": [...], "csv_missing": [...], "n_nc", "n_csv",
+         "other_year": [nc files whose name has another year than the tar]}
     """
-    info = {"header": {}, "toml_name": None, "toml_same": None, "subsets": {}, "n_nc": 0, "n_csv": 0}
+    info = {"header": {}, "toml_name": None, "toml_same": None, "subsets": {}, "n_nc": 0, "n_csv": 0,
+            "other_year": []}
+    m_year = re.search(r"_(\d{4})\.tar$", os.path.basename(tar_path))
+    tar_year = m_year.group(1) if m_year else None
     species: dict[str, set] = {}
     subset_bytes: dict[str, int] = {}
     csv_grps: set[str] = set()
@@ -376,6 +380,8 @@ def inspect_tar(tar_path: str, toml_text: str, datainfo: dict) -> dict:
                 parts = os.path.splitext(base)[0].split("_")
                 if len(parts) >= 5:
                     species.setdefault(parts[-3], set()).add(parts[-2])
+                    if tar_year and parts[-1] != tar_year:
+                        info["other_year"].append(base)
                     subset_bytes[parts[-3]] = subset_bytes.get(parts[-3], 0) + m.size
             elif base.endswith(".csv"):
                 info["n_csv"] += 1
@@ -429,6 +435,9 @@ def print_inspect(name: str, info: dict, toml_path: str) -> None:
     if info["missing_groups"]:
         print(aux.pwarn(f"   missing groups: {', '.join(info['missing_groups'])} "
                         f"(tar overwritten by a run without them?)"))
+    if info.get("other_year"):
+        shown = ", ".join(info["other_year"][:5]) + (" ..." if len(info["other_year"]) > 5 else "")
+        print(aux.pwarn(f"   {len(info['other_year'])} nc file(s) of another year than the tar: {shown}"))
 
 
 def deep_check(years: list[int], store: dict[int, dict], datainfo: dict, toml_path: str,
