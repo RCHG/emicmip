@@ -117,6 +117,8 @@ LEGACY_SECTOR_ALIASES = {
 # old vs new tool versions, so it's independent of those flags:
 #   - anthro-biof (all its species): CEDS-only SOLID-BIOFUEL sector, has no
 #     scenariomip equivalent (only_in_B, dropped for the future period).
+#   - anthro-surf-ecearth (same species): derived from anthro-biof by -e, so
+#     only in historical -ec3 tars (only_in_B).
 #   - bburning NOxasNO2 (only_in_B): historical (BB4CMIP7) only.
 #   - Only against historical tars older than d (c and earlier), which lack
 #     them: N2O (anthro-surf, anthro-air, bburning), HCN and NMVOCbulk
@@ -137,8 +139,9 @@ KNOWN_HISTORICAL_SCENARIO_DIFFS = {
     ("N2O", "anthro-air"),
     ("N2O", "bburning"),
     ("CH4", "anthro-air"),
-    *{(sp, "anthro-biof") for sp in ("BC", "CH4", "CO", "CO2", "N2O", "NH3",
-                                     "NMVOC", "NOx", "OC", "SO2")},
+    *{(sp, sfx) for sp in ("BC", "CH4", "CO", "CO2", "N2O", "NH3",
+                           "NMVOC", "NOx", "OC", "SO2")
+               for sfx in ("anthro-biof", "anthro-surf-ecearth")},
     ("NOxasNO2", "bburning"),
     ("HCN", "bburning"),
     ("NMVOCbulk", "bburning"),

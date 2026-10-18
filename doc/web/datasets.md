@@ -70,8 +70,8 @@ faster; `cdo` reads them directly.
 | Subset                | Content                                                                       | Resolution (historical / ScenarioMIP) |
 |-----------------------|-------------------------------------------------------------------------------|---------------------------------------|
 | `anthro-surf`         | surface anthropogenic, sectors AGR, ENE, IND, TRA, RCO, SLV, WST, SHP and ALL | 0.5° / 0.5°                           |
-| `anthro-biof`         | solid biofuel, part of `anthro-surf` (historical only)                        | 0.5° / --                             |
-| `anthro-surf-ecearth` | `anthro-surf` minus `anthro-biof` (BC, OC; `-ec3` tars only)                  | 0.5° / --                             |
+| `anthro-biof`         | solid biofuel, part of `anthro-surf`, 10 species (historical only)            | 0.5° / --                             |
+| `anthro-surf-ecearth` | `anthro-surf` minus `anthro-biof`, same 10 species (`-ec3` tars only)         | 0.5° / --                             |
 | `anthro-air`          | aviation, sector AVI, 3D (25 CEDS levels)                                     | 0.5° / 0.5°                           |
 | `bburning`            | biomass burning, variable `bbALL` (total)                                     | 0.25° / 0.5°                          |
 
@@ -100,13 +100,14 @@ are in the statistics CSV files inside each tar, and `cmip_validate --timeseries
 | Species                       | CMIP7 historical     | CMIP7 ScenarioMIP |
 |-------------------------------|:--------------------:|:-----------------:|
 | BC, OC                        | yes (+ biofuel file) | yes               |
-| CH4, CO, NH3, NOx, SO2, NMVOC | yes                  | yes               |
-| CO2                           | yes                  | yes               |
-| N2O                           | yes                  | yes               |
+| CH4, CO, NH3, NOx, SO2, NMVOC | yes (+ biofuel file) | yes               |
+| CO2                           | yes (+ biofuel file) | yes               |
+| N2O                           | yes (+ biofuel file) | yes               |
 | VOC01 ... VOC25 (23 species)  | yes                  | yes               |
 
 NMVOC is the sum of the 23 VOCs: use one or the other, never both. The solid-biofuel
-file is part of the surface total, not an extra source.
+file (10 species; CH4 and N2O from 1970) is part of the surface total, not an extra
+source.
 
 **Aviation** (`anthro-air`)
 

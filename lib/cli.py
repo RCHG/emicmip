@@ -50,7 +50,7 @@ def cli_arguments() -> argparse.Namespace:
     parser.add_argument('--rawpath',         action='store',                       help="Path where the raw-input dataset is stored.")
     parser.add_argument('--propath',         action='store',                       help="Path where temporal intermediate files are stored")
     parser.add_argument('--outpath',         action='store',                       help='Path where the hierarchy of output files/directores will be stored')
-    parser.add_argument('-e','--ecearth3',   action='store_true', default=False,   help="EC-Earth3 compatibility: derive extra anthro-surf-ecearth files (anthro-surf minus solid-biofuel, per sector) for species with a solid-biofuel dataset (BC, OC in CMIP7 historical). No-op (with a warning) where that dataset isn't in the config, e.g. ScenarioMIP.")
+    parser.add_argument('-e','--ecearth3',   action='store_true', default=False,   help="EC-Earth3 compatibility: derive extra anthro-surf-ecearth files (anthro-surf minus solid-biofuel, per sector) for species with a solid-biofuel dataset (10 species in CMIP7 historical, BC and OC in CMIP6). No-op (with a warning) where that dataset isn't in the config, e.g. ScenarioMIP.")
     parser.add_argument('--noclean',         action='store_true', default=False,  help="Keep all files in temporal directories where processing is done. Useful for debugging.")
     parser.add_argument('--store',           action='store',      default="year", help="Store in tar format in a final destination. Options year,species,both") 
     parser.add_argument('--toml',            action='store',      default=None,   help="Use an alternative toml file with raw dataset info")

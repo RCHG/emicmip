@@ -25,7 +25,8 @@ What is worth knowing about the data in the tars.
   completeness. Every other aviation species (BC, OC, SO2, NMVOC, CO2, CO, NH3, NOx,
   N2O) is not zero (historical, checked 2000-2023).
 - **Historical CH4 and N2O of aviation and of solid biofuel start in 1970** (CEDS);
-  earlier tars have no such files. The other species of aviation and solid biofuel, and
+  earlier tars have no such files, nor the `anthro-surf-ecearth` files of CH4 and N2O
+  (derived from the solid biofuel). The other species of aviation and solid biofuel, and
   surface CH4 and N2O, cover 1750-2023.
 - **Legacy tars `c` and `c-ec3`: CO2 biomass burning is not the total** (peat only in
   `c`, wrong scaling in `c-ec3`). Use `d-ec3`.

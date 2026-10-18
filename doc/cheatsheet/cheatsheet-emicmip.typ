@@ -95,7 +95,7 @@
   #rows(
     `--years 1850 2022`, [only these years (default: all of the config)],
     `--store year`, [tar per year (also: species, both)],
-    `-e`, [`--ecearth3`: extra `anthro-surf-ecearth` (surf #sym.minus biof, BC/OC); tar gets `-ec3`],
+    `-e`, [`--ecearth3`: extra `anthro-surf-ecearth` (surf #sym.minus biof, biofuel species); tar gets `-ec3`],
     `--nccompress`, [deflate final nc (level 4, lossless) before tar],
     `--forceinterp Y`, [validation: interpolate Y although it exists (needs `--years`, `--outpath`; tar not stored)],
     `--overwrite`, [redo files that already exist],
@@ -164,7 +164,7 @@
   #sub[Suffixes] \
   #rows(
     `anthro-surf`, [CEDS surface + speciated VOC (NMVOC = their sum)],
-    `anthro-biof`, [solid biofuel (BC, OC), historical only],
+    `anthro-biof`, [solid biofuel (CMIP7: 10 species; CMIP6: BC, OC), historical only],
     `anthro-surf-ecearth`, [surf #sym.minus biof (with `-e`)],
     `anthro-air`, [aviation, 3D],
     `bburning`, [biomass burning: read `bbALL`; `bbPEAT` = CO2 peat part, never add it #gray[(legacy: `bb4-2-0`)]],

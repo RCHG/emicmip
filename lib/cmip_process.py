@@ -799,8 +799,9 @@ def apply_ecearth3_biofuel_subtraction(group_config: dict, created_lfiles: list[
     """Derive extra anthro-surf-ecearth files for EC-Earth3 compatibility.
 
     For every species with both an anthro-surf and an anthro-biof file (i.e.
-    a species listed under the group's "em-SOLID-BIOFUEL-anthro" subset,
-    today BC and OC), computes anthro-surf-ecearth = anthro-surf minus
+    a species listed under the group's "em-SOLID-BIOFUEL-anthro" subset:
+    10 species in CMIP7 historical, BC and OC in CMIP6), computes
+    anthro-surf-ecearth = anthro-surf minus
     anthro-biof, sector by sector, via `ncdiff`. This is an exact partition,
     not an approximation: anthro-biof holds only the solid-biofuel-combustion
     portion of the same per-sector values anthro-surf reports, so

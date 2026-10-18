@@ -472,8 +472,8 @@ def tar_store_byyear(args: argparse.Namespace, datainfo: dict, lstore_nc: list[s
 
     entries = [(" -- anthro. surface  :", entry("anthro", "anthro-surf"))]
     if args.ecearth3:
-        entries += [(" -- (above for BC/OC):", entry("anthro", "anthro-surf-ecearth")),
-                    (" -- biofuel BC/OC    :", entry("anthro", "anthro-biof"))]
+        entries += [(" -- surf. - biofuel  :", entry("anthro", "anthro-surf-ecearth")),
+                    (" -- solid biofuel    :", entry("anthro", "anthro-biof"))]
     entries += [(" -- anthro. aviation :", entry("aviation", "anthro-air")),
                 (" -- biomass burning  :", entry("bburning"))]
 

@@ -179,7 +179,9 @@ Outputs go to `outs/validation/<name>/` (`--outdir`, `--name` to change it).
      stats csv : anthro, aviation, bburning
   ```
 
-  `DIFFERS` means the toml used for that tar is not the current one in `etc/`.
+  `DIFFERS` means the toml used for that tar is not the current one in `etc/`. A line
+  `<n> nc file(s) of another year than the tar: ...` lists NetCDF files whose name has a
+  year other than the tar's; it is printed only when there are any.
 - **`--tarpath PATH`:** one tar by its full path (the store is its folder); with `--toml`,
   that toml is a reference compared with the toml inside the tar.
 
