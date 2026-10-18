@@ -14,7 +14,7 @@
     # without sharing temporary files or emissions_stats CSVs (same names).
     propath           = "/ec/res4/scratch/{user}/emissions/cmip7scenariomip/vl/temp/"
     outpath           = "/ec/res4/scratch/{user}/emissions/cmip7scenariomip/vl"
-    tar_store         = { cmd = "ecp", path = "ec:/{user}/emissions/cmip7scenariomip/" }
+    tar_store         = { cmd = "ecp", path = "ec:/{user}/emissions/cmip7scenariomip/vl/" }
     tar_common        = "ScenarioMIPvl-a"
 
     # General info of emissions dataset

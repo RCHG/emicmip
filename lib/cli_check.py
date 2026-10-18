@@ -39,7 +39,7 @@ What is checked:
                     subsets the tar holds.
 
   --tarpath PATH    one tar by its full path, e.g.
-                    ec:/<user>/emissions/cmip7scenariomip/ScenarioMIPm-a_2024.tar,
+                    ec:/<user>/emissions/cmip7scenariomip/m/ScenarioMIPm-a_2024.tar,
                     always read in depth (--deep). No --toml needed: the store
                     is the tar's folder, and no local outpath is checked. With
                     --years, the same name for other years. With --toml, that

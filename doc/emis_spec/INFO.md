@@ -42,17 +42,17 @@ name (`tar_common`, plus `-ec3` for `--ecearth3` runs).
 
 Tars and store read by each file:
 
-| File                                            | Reads tars                            | Store                                   |
-|-------------------------------------------------|---------------------------------------|-----------------------------------------|
-| `cmip7_m7_simchem.emi`                          | `CMIP7hist-2025-04-18d-ec3`           | `ec:/nldac/emissions/cmip7hist/`        |
-| `cmip7_m7_simchem_co2-bbALL.emi`                | `CMIP7hist-2025-04-18d-ec3`           | `ec:/nldac/emissions/cmip7hist/`        |
-| `cmip7_m7_simchem_co2-bbPEAT.emi`               | `CMIP7hist-2025-04-18d-ec3`           | `ec:/nldac/emissions/cmip7hist/`        |
-| `cmip7_m7_simchem_aviation.emi`                 | `CMIP7hist-2025-04-18d-ec3`           | `ec:/nldac/emissions/cmip7hist/`        |
-| `cmip7_scenariomip-<x>_m7_simchem.emi`          | `ScenarioMIP<x>-a`                    | `ec:/nldac/emissions/cmip7scenariomip/` |
-| `cmip7_scenariomip-<x>_m7_simchem_aviation.emi` | `ScenarioMIP<x>-a`                    | `ec:/nldac/emissions/cmip7scenariomip/` |
-| `cmip7_m7_simchem_legacy_fixed.emi`             | `CMIP7hist-2025-04-18c`               | `ec:/nldac/emissions/cmip7hist/`        |
-| `cmip7_m7_simchem_legacy.emi`                   | `CMIP7hist-2025-04-18c-ec3`           | `ec:/nldac/emissions/cmip7hist/`        |
-| `cams_m7_simchem.emi`                           | CAMS datasets (not tars of this tool) | --                                      |
+| File                                            | Reads tars                            | Store                                       |
+|-------------------------------------------------|---------------------------------------|---------------------------------------------|
+| `cmip7_m7_simchem.emi`                          | `CMIP7hist-2025-04-18d-ec3`           | `ec:/nldac/emissions/cmip7hist/`            |
+| `cmip7_m7_simchem_co2-bbALL.emi`                | `CMIP7hist-2025-04-18d-ec3`           | `ec:/nldac/emissions/cmip7hist/`            |
+| `cmip7_m7_simchem_co2-bbPEAT.emi`               | `CMIP7hist-2025-04-18d-ec3`           | `ec:/nldac/emissions/cmip7hist/`            |
+| `cmip7_m7_simchem_aviation.emi`                 | `CMIP7hist-2025-04-18d-ec3`           | `ec:/nldac/emissions/cmip7hist/`            |
+| `cmip7_scenariomip-<x>_m7_simchem.emi`          | `ScenarioMIP<x>-a`                    | `ec:/nldac/emissions/cmip7scenariomip/<x>/` |
+| `cmip7_scenariomip-<x>_m7_simchem_aviation.emi` | `ScenarioMIP<x>-a`                    | `ec:/nldac/emissions/cmip7scenariomip/<x>/` |
+| `cmip7_m7_simchem_legacy_fixed.emi`             | `CMIP7hist-2025-04-18c`               | `ec:/nldac/emissions/cmip7hist/`            |
+| `cmip7_m7_simchem_legacy.emi`                   | `CMIP7hist-2025-04-18c-ec3`           | `ec:/nldac/emissions/cmip7hist/`            |
+| `cams_m7_simchem.emi`                           | CAMS datasets (not tars of this tool) | --                                          |
 
 ## Years of each dataset
 

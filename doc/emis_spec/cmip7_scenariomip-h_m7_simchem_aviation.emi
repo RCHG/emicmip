@@ -4,7 +4,7 @@
 # │ Contact: Ramiro Checa-Garcia (KNMI)                                        │
 # │                                                                            │
 # │ Same as cmip7_m7_simchem.emi (historical) except the CMIP sources:         │
-# │   tars ec:/nldac/emissions/cmip7scenariomip/ScenarioMIPh-a_{year}.tar      │
+# │   tars ec:/nldac/emissions/cmip7scenariomip/h/ScenarioMIPh-a_{year}.tar    │
 # │   biomass burning at 0.5 deg (05x05), no CO2 in biomass burning.           │
 # │ Plus aviation (AVI, 3D) BC, POM, SO2 and SO4, as in                        │
 # │ cmip7_m7_simchem_aviation.emi (historical).                                │
@@ -40,20 +40,20 @@ paramid=216045: src=file:/ec/res4/hpcperm/nk9/CAMS/Emis/emis_aux/volcanoes/volca
 
 # *** 1.2 Anthropogenic Emissions (surface) ------------------------------------
 
-sector=AGR/ENE/IND/TRA/RCO/SLV/WST/SHP:   src=ec:/nldac/emissions/cmip7scenariomip/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:{sector}, prespatial=box_avg, pretemporal=timeint
+sector=AGR/ENE/IND/TRA/RCO/SLV/WST/SHP:   src=ec:/nldac/emissions/cmip7scenariomip/h/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:{sector}, prespatial=box_avg, pretemporal=timeint
 
 # *** 1.3 SOA sectors ----------------------------------------------------------
-sector=ene_SOA: src=ec:/nldac/emissions/cmip7scenariomip/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:ENE, prespatial=box_avg, pretemporal=timeint
-sector=ind_SOA: src=ec:/nldac/emissions/cmip7scenariomip/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:IND, prespatial=box_avg, pretemporal=timeint
-sector=rco_SOA: src=ec:/nldac/emissions/cmip7scenariomip/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:RCO, prespatial=box_avg, pretemporal=timeint
-sector=shp_SOA: src=ec:/nldac/emissions/cmip7scenariomip/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:SHP, prespatial=box_avg, pretemporal=timeint
-sector=wst_SOA: src=ec:/nldac/emissions/cmip7scenariomip/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:WST, prespatial=box_avg, pretemporal=timeint
-sector=tra_SOA: src=ec:/nldac/emissions/cmip7scenariomip/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:TRA, prespatial=box_avg, pretemporal=timeint
-sector=slv_SOA: src=ec:/nldac/emissions/cmip7scenariomip/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:SLV, prespatial=box_avg, pretemporal=timeint
-sector=agr_SOA: src=ec:/nldac/emissions/cmip7scenariomip/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:AGR, prespatial=box_avg, pretemporal=timeint
+sector=ene_SOA: src=ec:/nldac/emissions/cmip7scenariomip/h/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:ENE, prespatial=box_avg, pretemporal=timeint
+sector=ind_SOA: src=ec:/nldac/emissions/cmip7scenariomip/h/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:IND, prespatial=box_avg, pretemporal=timeint
+sector=rco_SOA: src=ec:/nldac/emissions/cmip7scenariomip/h/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:RCO, prespatial=box_avg, pretemporal=timeint
+sector=shp_SOA: src=ec:/nldac/emissions/cmip7scenariomip/h/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:SHP, prespatial=box_avg, pretemporal=timeint
+sector=wst_SOA: src=ec:/nldac/emissions/cmip7scenariomip/h/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:WST, prespatial=box_avg, pretemporal=timeint
+sector=tra_SOA: src=ec:/nldac/emissions/cmip7scenariomip/h/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:TRA, prespatial=box_avg, pretemporal=timeint
+sector=slv_SOA: src=ec:/nldac/emissions/cmip7scenariomip/h/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:SLV, prespatial=box_avg, pretemporal=timeint
+sector=agr_SOA: src=ec:/nldac/emissions/cmip7scenariomip/h/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-surf_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:AGR, prespatial=box_avg, pretemporal=timeint
 
 # *** 1.4 Aircraft emissions ---------------------------------------------------
-sector=AVI: vertical_profile_type=3D, src=ec:/nldac/emissions/cmip7scenariomip/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-air_{xfvar|_tag|species}_{year}.nc, prespatial=box_avg, preconvert=cdo_grib2:-setzaxis,/home/eccams/data/cifs_input/emis_aux/AIR_AUX_V1/AIR_AUX.zaxis.L{levels}:-selname,AVI:-mul:-intlevelx3d,/home/eccams/data/cifs_input/emis_aux/AIR_AUX_V1/AIR_AUX.z.L{levels}.nc:-divc,610::-expr,z=clev(AVI)*1e3+AVI*0::/home/eccams/data/cifs_input/emis_aux/AIR_AUX_V1/AIR_AUX.thickness.L{levels}.nc, pretemporal=timeint_month
+sector=AVI: vertical_profile_type=3D, src=ec:/nldac/emissions/cmip7scenariomip/h/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_anthro-air_{xfvar|_tag|species}_{year}.nc, prespatial=box_avg, preconvert=cdo_grib2:-setzaxis,/home/eccams/data/cifs_input/emis_aux/AIR_AUX_V1/AIR_AUX.zaxis.L{levels}:-selname,AVI:-mul:-intlevelx3d,/home/eccams/data/cifs_input/emis_aux/AIR_AUX_V1/AIR_AUX.z.L{levels}.nc:-divc,610::-expr,z=clev(AVI)*1e3+AVI*0::/home/eccams/data/cifs_input/emis_aux/AIR_AUX_V1/AIR_AUX.thickness.L{levels}.nc, pretemporal=timeint_month
 
 # *** 1.5 Biomass-burning emissions --------------------------------------------
 # biomass_burning reads ONE variable of the _bburning_ files: preconvert=cdo_grib1:<var>.
@@ -62,7 +62,7 @@ sector=AVI: vertical_profile_type=3D, src=ec:/nldac/emissions/cmip7scenariomip/S
 #   bbAGRW, bbFORE, bbGRSS, bbPEAT: agricultural-waste, forest, grassland and peat
 #           fires; each is only part of bbALL (never add them to it).
 # No CO2 in ScenarioMIP biomass burning.
-sector=biomass_burning: src=ec:/nldac/emissions/cmip7scenariomip/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_bburning_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:bbALL, pretemporal=timeint
+sector=biomass_burning: src=ec:/nldac/emissions/cmip7scenariomip/h/ScenarioMIPh-a_{year}.tar#ScenarioMIPh-a_05x05_bburning_{xfvar|_tag|species}_{year}.nc, preconvert=cdo_grib1:bbALL, pretemporal=timeint
 
 # ==============================================================================
 species=BC_KI: _tag=BC

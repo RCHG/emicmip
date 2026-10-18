@@ -178,7 +178,7 @@
 #sec[Stores and datasets][
   #rows(
     [hist.], [`ec:/nldac/emissions/cmip7hist/`],
-    [scen.], [`ec:/nldac/emissions/cmip7scenariomip/`],
+    [scen.], [`ec:/nldac/emissions/cmip7scenariomip/<x>/`],
     [CMIP6], [`ec:/nldac/emissions/cmip6hist/` (`not produced`)],
   )
   #sub[CMIP7 historical versions] \

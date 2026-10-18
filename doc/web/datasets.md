@@ -31,10 +31,10 @@ one tested emission-specification file.
 
 Each dataset is stored on ECFS as **one tar per year**, named `{tar_common}_{year}.tar`:
 
-| Source dataset                              | Store                                   | Tar of one year (example)            |
-|---------------------------------------------|-----------------------------------------|--------------------------------------|
-| CMIP7 historical                            | `ec:/nldac/emissions/cmip7hist/`        | `CMIP7hist-2025-04-18d-ec3_1850.tar` |
-| CMIP7 ScenarioMIP, one dataset per scenario | `ec:/nldac/emissions/cmip7scenariomip/` | `ScenarioMIPm-a_2050.tar`            |
+| Source dataset                              | Store                                       | Tar of one year (example)            |
+|---------------------------------------------|---------------------------------------------|--------------------------------------|
+| CMIP7 historical                            | `ec:/nldac/emissions/cmip7hist/`            | `CMIP7hist-2025-04-18d-ec3_1850.tar` |
+| CMIP7 ScenarioMIP, one dataset per scenario | `ec:/nldac/emissions/cmip7scenariomip/<x>/` | `m/ScenarioMIPm-a_2050.tar`          |
 
 Inside each tar:
 

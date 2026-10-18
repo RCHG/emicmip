@@ -177,14 +177,31 @@ with `cmip_validate --compare`. This comparison led to the comparison modes of
 `cmip_validate` (`--historicalref`, which lists the known historical/ScenarioMIP
 differences apart) and confirmed that the ScenarioMIP data are processed correctly.
 
-With the final datasets it is repeated for each scenario against
-`CMIP7hist-2025-04-18d-ec3` in 2022: _results to be added after the production_.
+With the final datasets each scenario is compared with `CMIP7hist-2025-04-18d-ec3` in
+2022, the year they share, with this command (here for the medium scenario `m`):
 
 ```bash
-./cmip_validate --compare ec:/<user>/emissions/cmip7scenariomip/ScenarioMIPm-a_2022.tar \
-                          ec:/<user>/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_2022.tar \
-                --historicalref --ecfs-cache $SCRATCH/ecfs_cache
+./cmip_validate --historicalref --ecfs-cache $SCRATCH/ecfs_cache --compare \
+  ec:/<user>/emissions/cmip7scenariomip/m/ScenarioMIPm-a_2022.tar \
+  ec:/<user>/emissions/cmip7hist/CMIP7hist-2025-04-18d-ec3_2022.tar
 ```
+
+| Scenario | Anthropogenic surface                          | Aviation                     | Biomass burning                  |
+|----------|------------------------------------------------|------------------------------|----------------------------------|
+| `m`      | equal to 6 significant figures; VOCs within 0.3 % | 0.17 % lower, every species | different (projection vs. observed fires) |
+| `h`      | _to be added after the production_             |                              |                                  |
+| `l`      | _to be added after the production_             |                              |                                  |
+| `vl`     | _to be added after the production_             |                              |                                  |
+
+- Anthropogenic surface: IIASA is harmonized to CEDS in 2022, so the annual totals of
+  every species and sector agree. The 23 speciated VOCs differ slightly by sector, while
+  their bulk NMVOC total is equal.
+- Aviation: ScenarioMIP is 0.17 % lower than the historical data, the same factor in
+  every grid cell and species (CH4 aviation is zero on both sides).
+- Biomass burning: ScenarioMIP is a projection, the historical dataset follows the
+  observed fires of 2022, so totals and patterns differ (ScenarioMIP higher for every
+  species but H2). The historical field (0.25°) is regridded conservatively to 0.5°
+  before the comparison.
 
 ## Checks in OpenIFS runs
 
