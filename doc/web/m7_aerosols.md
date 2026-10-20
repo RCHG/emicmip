@@ -119,10 +119,40 @@ SOA: 40/521 = 0.077.
   `BC_KI`/`POM_KI`: ScenarioMIP provides no solid-biofuel files, so the split is not
   applied, to keep historical and ScenarioMIP consistent.
 - **Aviation.** The standard `.emi` emit no aviation aerosol or SO2 (no `paramid` for
-  `AVI`). The paper does not specify aircraft BC, SO2 or SO4. A possible implementation
-  of aviation aerosols is described in the section below.
+  `AVI`). The paper does not specify aircraft BC, SO2 or SO4. How aviation aerosols could
+  be included is illustrated in the section below.
 
-## Aviation aerosol emissions
+## Aviation aerosols: an illustrative implementation
+
+This section is an illustration of how aviation aerosols would be included, not part of
+the standard `.emi` files (not used for the CMIP7 FastTrack). The steps are (a) to find
+the size distribution of the emitted particles and (b) to implement it in the `.emi`.
+
+In mass, aviation is a small part of the emissions. Year 2023 of CMIP7 historical, from
+the emissions_stats CSVs of the yearly tars, with total = anthro-surf (`ALL`) +
+bburning (`bbALL`) + aviation (`AVI`); natural sources are not included:
+
+| Species | Aviation (Tg/yr) | Total (Tg/yr) | Aviation share |
+|---------|:----------------:|:-------------:|:--------------:|
+| BC      | 0.012            | 7.57          | 0.16%          |
+| OC      | 0.0059           | 41.1          | 0.01%          |
+| SO2     | 0.335            | 72.8          | 0.46%          |
+| NOx     | 3.85             | 121           | 3.2%           |
+| CO      | 0.79             | 897           | 0.09%          |
+| NH3     | 0.049            | 71.6          | 0.07%          |
+| N2O     | 0.030            | 11.6          | 0.26%          |
+| CO2     | 945              | 47160         | 2.0%           |
+| CH4     | 0                | 369           | 0 (\*\*)       |
+
+(\*\*) CH4 aviation is zero in the raw files (see
+[Notes and limitations](data_notes.md)).
+
+For the species of M7 (BC, OC, SO2) aviation is 0.01-0.5% of the emitted mass, so its
+contribution to the aerosol concentrations is expected to be marginal. NOx has the
+largest share, but it is a gas of the chemistry, not of M7, and is not in these `.emi`
+files.
+
+### (a) Size distribution
 
 Aircraft soot is much smaller than soot from other sources:
 
@@ -133,8 +163,13 @@ Aircraft soot is much smaller than soot from other sources:
 | Global civil aviation inventory ([Zhang et al., 2019](https://doi.org/10.1038/s41467-019-08491-9))             | 32 nm                   | 1.85     |
 
 A diameter of about 32 nm is a radius of about 0.016 µm: Aitken range, half of the
-0.03 µm used for other combustion sources. `cmip7_m7_simchem_aviation.emi` (not tested
-yet) therefore adds, from `anthro-air`:
+0.03 µm used for other combustion sources.
+
+### (b) Implementation in the `.emi`
+
+`cmip7_m7_simchem_aviation.emi` (and the ScenarioMIP `*_aviation.emi`) therefore adds,
+from `anthro-air`, with the radius of (a); their tests are in
+[Emission specification](emission_spec.md#aviation-aerosols-illustrative):
 
 | Species              | Tracer      | Factor  | Radius   | paramid |
 |----------------------|-------------|:-------:|:--------:|:-------:|

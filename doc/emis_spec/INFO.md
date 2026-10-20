@@ -56,18 +56,19 @@ Tars and store read by each file:
 
 ## Years of each dataset
 
-Status 2026-10-18. The current datasets are (re)produced with emicmip 0.2.0, the
-historical one overwriting the years already in the store.
+Status 2026-10-18 (historical `d-ec3`: 2026-10-20). The current datasets are
+(re)produced with emicmip 0.2.0, the historical one overwriting the years already in
+the store.
 
-| Status  | Dataset            | Raw files | Processed (in the store)                | Pending                                                |
-|---------|--------------------|-----------|-----------------------------------------|--------------------------------------------------------|
-| legacy  | historical `c`     | 1750-2023 | 1750-1752, 1850-1851, 1990-2023         | none (not produced any more)                           |
-| legacy  | historical `c-ec3` | 1750-2023 | 1750-1751, 1753, 1850-1851, 1990-2023   | none (not produced any more)                           |
-| current | historical `d-ec3` | 1750-2023 | 1750, 1800, 1850, 1900, 1950, 1990-2023 | 1751-1799, 1801-1849, 1851-1899, 1901-1949, 1951-1989 |
-| current | ScenarioMIP `h-a`  | 2022-2100 | 2022-2030                               | 2031-2100                                              |
-| current | ScenarioMIP `m-a`  | 2022-2100 | 2022-2030                               | 2031-2100                                              |
-| current | ScenarioMIP `l-a`  | 2022-2100 | 2022-2030                               | 2031-2100                                              |
-| current | ScenarioMIP `vl-a` | 2022-2100 | 2022-2030                               | 2031-2100                                              |
+| Status  | Dataset            | Raw files | Processed (in the store)                                     | Pending                                                          |
+|---------|--------------------|-----------|--------------------------------------------------------------|------------------------------------------------------------------|
+| legacy  | historical `c`     | 1750-2023 | 1750-1752, 1850-1851, 1990-2023                              | none (not produced any more)                                     |
+| legacy  | historical `c-ec3` | 1750-2023 | 1750-1751, 1753, 1850-1851, 1990-2023                        | none (not produced any more)                                     |
+| current | historical `d-ec3` | 1750-2023 | 1750-1751, 1800, 1850-1851, 1900, 1950, 1980-1981, 1989-2023 | 1752-1799, 1801-1849, 1852-1899, 1901-1949, 1951-1979, 1982-1988 |
+| current | ScenarioMIP `h-a`  | 2022-2100 | 2022-2030                                                    | 2031-2100                                                        |
+| current | ScenarioMIP `m-a`  | 2022-2100 | 2022-2030                                                    | 2031-2100                                                        |
+| current | ScenarioMIP `l-a`  | 2022-2100 | 2022-2030                                                    | 2031-2100                                                        |
+| current | ScenarioMIP `vl-a` | 2022-2100 | 2022-2030                                                    | 2031-2100                                                        |
 
 ScenarioMIP raw files hold 2022-2025 and then every fifth year; the years in between
 are interpolated (see the web page "Datasets").

@@ -5,10 +5,23 @@ The OpenIFS emission pre-processor reads the tars through an emission-specificat
 
 :::{note}
 The `.emi` files are examples for **OpenIFS with HAMM7** (M7 aerosols) and **Simplified
-Chemistry** (SimChem, interactive SO2 / H2SO4). The current historical file
-and the aviation file have been tested in OpenIFS with this setup; the CO2 files in the
-emission pre-processing (see below).
+Chemistry** (SimChem, interactive SO2 / H2SO4). The current historical file has been
+tested in OpenIFS with this setup; the CO2 files in the emission pre-processing (see
+below).
 Other aerosol or chemistry schemes need their own species, tracers and paramids.
+:::
+
+:::{warning}
+`cmip7_m7_simchem_legacy.emi` is the equivalent of `ctrl/emis_spec/cmip7_hamm7_simchem.emi`
+of oifs-ac-experiments (maintained by Philippe Le Sager, KNMI), tag v1.0 (commit
+b1001c0, PR #13), used in the second production runs (Sep 2026). The only difference:
+the AVI line uses AIR_AUX_V1, a more recent version of the vertical-level files used to
+interpolate the aviation emissions to the model levels.
+
+Between that file and the current examples in `doc/emis_spec/` the differences are only
+the tar version (the most recent is `d-ec3`, where biomass burning is read as
+`_bburning_`/`bbALL` instead of `_bb4-2-0_`/`biomass_burning`) and the use of
+AIR_AUX_V1.
 :::
 
 ## `.emi` files provided
@@ -18,14 +31,16 @@ Other aerosol or chemistry schemes need their own species, tracers and paramids.
 | `cmip7_m7_simchem.emi`                          | `CMIP7hist-2025-04-18d-ec3` | CMIP7 historical.                          | tested: OpenIFS run, 10 days (see [Validation](validation.md))   | -                                                      |
 | `cmip7_m7_simchem_co2-bbALL.emi`                | `CMIP7hist-2025-04-18d-ec3` | CMIP7 historical + CO2, fire CO2 total     | tested: pre-processing (CO2 added as extra tracer, see below)    | -                                                      |
 | `cmip7_m7_simchem_co2-bbPEAT.emi`               | `CMIP7hist-2025-04-18d-ec3` | CMIP7 historical + CO2, fire CO2 peat only | tested: pre-processing (CO2 added as extra tracer, see below)    | -                                                      |
-| `cmip7_m7_simchem_aviation.emi`                 | `CMIP7hist-2025-04-18d-ec3` | CMIP7 historical + aviation aerosols       | tested: pre-processing and run, 2 legs (see below)               | -                                                      |
 | `cmip7_scenariomip-<x>_m7_simchem.emi`          | `ScenarioMIP<x>-a`          | ScenarioMIP                                | m: tested, pre-processing and run, 2 legs; h, l, vl: not run yet | -                                                      |
-| `cmip7_scenariomip-<x>_m7_simchem_aviation.emi` | `ScenarioMIP<x>-a`          | ScenarioMIP + aviation aerosols            | m: tested, pre-processing and run, 2 legs; h, l, vl: not run yet | -                                                      |
 | `cmip7_m7_simchem_legacy_fixed.emi`             | `CMIP7hist-2025-04-18c`     | CMIP7 historical, previous tool            | tested (\*)                                                      | 2023 CO2-AIR (copy of 2022)                            |
 | `cmip7_m7_simchem_legacy.emi`                   | `CMIP7hist-2025-04-18c-ec3` | CMIP7 historical, decommissioned           | tested (\*)                                                      | 2023 CO2-AIR (copy of 2022); obsolete CO2 PEAT scaling |
 | `cams_m7_simchem.emi`                           | CAMS datasets               | CAMS, for cross-comparisons                | --                                                               | -                                                      |
 
 `<x>` = h (high), m (medium), l (low), vl (very low).
+
+The `*_aviation.emi` files in the same folder are not part of this list: they only
+illustrate how aviation aerosols could be included (see
+[Aviation aerosols](#aviation-aerosols-illustrative)).
 
 (\*) These files read no CO2 emissions, so the issues of their tars do not affect them at
 all: for every species they read, the tars are identical to `CMIP7hist-2025-04-18d-ec3`
@@ -105,13 +120,23 @@ otherwise these lines of the `.emi` are ignored. Therefore:
 | bbALL  | `bbALL`: total, all fire types incl. peat                       | CO2 transport without interactive land carbon                                                   |
 | bbPEAT | `bbPEAT`: peat fires only (2022: 2.53 Tg vs 5508 Tg in `bbALL`) | models with interactive land carbon, where the CO2 of the other fires is taken back by regrowth |
 
-## Aviation aerosols (M7)
+## Aviation aerosols (illustrative)
 
-The datasets include aviation species that fit the M7 aerosol emissions, not used in the
-earlier emission-specification files. `cmip7_m7_simchem_aviation.emi` adds aviation
-`BC_KI`, `POM_KI`, `SO4_KS` (Aitken modes, radius 0.016 µm) and `SO2`. Unlike CO2, the
-model uses these emissions, so they can change its results. See
-[Emissions for M7](m7_aerosols.md#aviation-aerosol-emissions).
+The standard `.emi` files emit no aviation aerosols or aviation SO2. The datasets include aviation
+species that fit the M7 aerosol emissions, and two files illustrate how they would be
+included; they are not official emission specifications (not used for the CMIP7
+FastTrack):
+
+| File                                            | Reads tars                  | Status                                                           |
+|-------------------------------------------------|-----------------------------|------------------------------------------------------------------|
+| `cmip7_m7_simchem_aviation.emi`                 | `CMIP7hist-2025-04-18d-ec3` | tested: pre-processing and run, 2 legs                           |
+| `cmip7_scenariomip-<x>_m7_simchem_aviation.emi` | `ScenarioMIP<x>-a`          | m: tested, pre-processing and run, 2 legs; h, l, vl: not run yet |
+
+They add aviation `BC_KI`, `POM_KI`, `SO4_KS` (Aitken modes, radius 0.016 µm) and `SO2`.
+How the size
+distribution was chosen, the entries of the `.emi`, and why aviation is expected to be
+marginal for the aerosol concentrations (2023: 0.01-0.5% of the emitted BC, OC and SO2):
+[Emissions for M7](m7_aerosols.md#aviation-aerosols-an-illustrative-implementation).
 
 Tested (OpenIFS 48r1, L91, 2 legs of 2 days): the four fields (paramid 219034, 219035,
 219037, 212230) are pre-processed on 91 levels, non-zero, and the run works. Two points of

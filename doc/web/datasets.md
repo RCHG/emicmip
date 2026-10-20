@@ -16,7 +16,8 @@ produce them are listed at the end ([Raw datasets from input4MIPs](#raw-datasets
 Each dataset covers one CMIP7 case: the historical period or one of the scenarios. As
 explained above, a dataset is a set of files with the same structure, one tar per year
 named `<tar name>_<YEAR>.tar`. The table gives, for each case, the prepared dataset and
-one tested emission-specification file.
+one tested emission-specification file. For the years already produced for each
+dataset, see [Years produced](#years-produced).
 
 | CMIP7 case                | Dataset (one tar per year)                    | Tested emission-specification file                                       |
 |---------------------------|-----------------------------------------------|--------------------------------------------------------------------------|
@@ -167,6 +168,26 @@ If in doubt about a tar, `cmip_check --tarpath <full path of the tar>` reads bac
 emicmip version, the command and date of the run, and the raw-data version of each
 group. Tars made with recent versions of emicmip carry the most information;
 older ones lack part of it.
+
+## Years produced
+
+Status 2026-10-18 (historical `d-ec3`: 2026-10-20). The current datasets are
+(re)produced with emicmip 0.2.0, the historical one overwriting the years already in
+the store.
+
+| Status  | Dataset            | Raw files | Processed (in the store)                                     | Pending                                                          |
+|---------|--------------------|-----------|--------------------------------------------------------------|------------------------------------------------------------------|
+| legacy  | historical `c`     | 1750-2023 | 1750-1752, 1850-1851, 1990-2023                              | none (not produced any more)                                     |
+| legacy  | historical `c-ec3` | 1750-2023 | 1750-1751, 1753, 1850-1851, 1990-2023                        | none (not produced any more)                                     |
+| current | historical `d-ec3` | 1750-2023 | 1750-1751, 1800, 1850-1851, 1900, 1950, 1980-1981, 1989-2023 | 1752-1799, 1801-1849, 1852-1899, 1901-1949, 1951-1979, 1982-1988 |
+| current | ScenarioMIP `h-a`  | 2022-2100 | 2022-2030                                                    | 2031-2100                                                        |
+| current | ScenarioMIP `m-a`  | 2022-2100 | 2022-2030                                                    | 2031-2100                                                        |
+| current | ScenarioMIP `l-a`  | 2022-2100 | 2022-2030                                                    | 2031-2100                                                        |
+| current | ScenarioMIP `vl-a` | 2022-2100 | 2022-2030                                                    | 2031-2100                                                        |
+
+The current state of the store can always be listed with
+`cmip_check --toml <config>` (see
+[Checking what has been produced](tooling.md#checking-what-has-been-produced)).
 
 ## Raw datasets from input4MIPs
 

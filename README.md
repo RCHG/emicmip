@@ -20,10 +20,12 @@ provided.
 - **Version:** `0.2.0` (first release): CMIP7 historical and CMIP7 ScenarioMIP.
 - **Documentation:** https://rchg.github.io/emicmip/ (tools, datasets, emission
   specification, [validation](https://rchg.github.io/emicmip/validation.html)).
+- **Years produced** of each dataset: [Datasets](https://rchg.github.io/emicmip/datasets.html#years-produced).
 - **Author:** Ramiro Checa-Garcia (KNMI)
 - **Cite as:** https://doi.org/10.5281/zenodo.23440591 (all versions; 0.2.0:
   https://doi.org/10.5281/zenodo.23440592)
-- **Contributors:** Detailed in the documentation
+- **Contributors:** detailed in the documentation,
+  [About/Contact](https://rchg.github.io/emicmip/#about-contact)
 
 ## Tools
 
