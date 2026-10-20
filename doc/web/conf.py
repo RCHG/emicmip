@@ -20,6 +20,7 @@ html_logo = "../png/emicmip-icon.png"      # drawing only: the name is already a
 html_favicon = "../png/emicmip-favicon.png"
 html_extra_path = ["_extra"]
 html_static_path = ["_static"]
+templates_path = ["_templates"]   # layout.html: GitHub link in the sidebar
 html_show_sourcelink = False
 mermaid_height = "auto"   # default 500px leaves empty space around small diagrams
 
