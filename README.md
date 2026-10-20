@@ -13,9 +13,9 @@
 
 Tools to convert raw CMIP6/CMIP7 emission datasets (input4MIPs NetCDF) into
 yearly tars of per-species NetCDF files for the OpenIFS/IFS emission
-pre-processor. They can also check and validate the produced datasets. It is
-provided a set of tested emission-specification files (`.emi`) for OpenIFS
-CY48R1.
+pre-processor. They can also check and validate the produced datasets. A set of
+tested emission-specification files (`.emi`) for OpenIFS CY48R1 is also
+provided.
 
 - **Version:** `0.2.0` (first release): CMIP7 historical and CMIP7 ScenarioMIP.
 - **Documentation:** https://rchg.github.io/emicmip/ (tools, datasets, emission
@@ -34,8 +34,8 @@ CY48R1.
 | `cmip_validate` | compares tars, recomputes totals, plots time series               |
 
 Note that the main rationale of the tools is that adding a dataset should mean
-writing a new `etc/*.toml`, not changing `lib/`, therefore if an specific MIP is
-not able to fit the given features, please open an issue with the details.
+writing a new `etc/*.toml`, not changing `lib/`. Therefore, if a specific MIP
+does not fit the existing features, please open an issue with the details.
 
 ## Requirements
 
@@ -85,16 +85,18 @@ make cmip7-scenariomip-m YEARS=2022-2030 OPTS="--nccompress --overwrite"
 | `doc/emis_spec/`  | tested `.emi` files for OpenIFS + HAMM7 + SimChem   |
 | `doc/cheatsheet/` | cheatsheet (Typst)                                  |
 
-## Development and use of AI
+## Development and use of LLMs
 
-emicmip derives from a previous tool written entirely by the author (human). It
-was extended to the future scenarios in continuous interaction with AI coding
-assistants (LLMs). The author set the goals, the design and the validation
-criteria, reviews the code and checks all outputs; LLMs wrote part of the new
-functions, helped refactor the previous code, supported the cross
-validation-comparison of all the emission-specification files, and translated or
-improved part of the comments and documentation. The header of each file gives
-the details.
+`emicmip` derives from a previous tool written entirely by the author (human),
+and used in previous production. The current `cmip_preemis` follows that tool,
+so LLMs were mainly used in `cmip_validate` and `cmip_check`, where a set of
+scripts were integrated into `lib/` with the support of AI. LLMs helped to
+validate the extension to future scenarios. For these tasks the author sets the
+goals, the design and the validation criteria, reviews the code and checks all
+outputs; LLMs wrote part of the new functions, helped refactor the previous
+code, supported the cross-validation (comparison) of all the
+emission-specification files, and translated or improved part of the comments
+and documentation. The header of each file gives the details.
 
 ## License
 

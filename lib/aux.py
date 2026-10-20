@@ -488,12 +488,9 @@ def tar_store_byyear(args: argparse.Namespace, datainfo: dict, lstore_nc: list[s
     if args.store in ["both","year"]:
         print(pinfo(f" We moved the tar files to {datainfo['tar_store']}"))
     else:
-        print(perror(f" Note: that --store was not set in command line"))
-        print(perror(f"       so files where not copied to {datainfo['tar_store']}"))
-        print(pinfo( f"       for each tarfile {s2} you can now")) 
-        xx=datainfo["tar_store"]
-        cmd_store = xx["cmd"]+" "+s2+" "+os.path.join(xx["path"], s2)
-        print(ppath(f"        {cmd_store}"))
+        print(perror(" Note: --store none, so the tars were created but not copied to other paths."))
+        if lstore_nc:                            # tars are made next to the nc files (outpath)
+            print(pinfo(f"       The created tars are in {os.path.dirname(lstore_nc[0])}"))
     print("\n======================================================\n")
 
     return 

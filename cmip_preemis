@@ -155,6 +155,14 @@ if __name__ == '__main__':
         print(aux.perror(f"\n--cleanafter needs --store year or both (got '{args.store}'): "
                          "files are only removed once their tar is in the store."))
         sys.exit(1)
+    if args.ecearth3 and not args.anthro:
+        print(aux.perror("\n--ecearth3 (-e) needs --anthro (-a): the anthro-surf-ecearth "
+                         "files are derived from the anthro group."))
+        sys.exit(1)
+    if args.store == "species":
+        print(aux.perror("\n--store species (one tar per species, all years together) "
+                         "is not implemented yet: use --store year or none."))
+        sys.exit(1)
 
     # Load configuration
     if args.toml is not None:
