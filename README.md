@@ -21,6 +21,7 @@ provided.
 - **Documentation:** https://rchg.github.io/emicmip/ (tools, datasets, emission
   specification, [validation](https://rchg.github.io/emicmip/validation.html)).
 - **Years produced** of each dataset: [Datasets](https://rchg.github.io/emicmip/datasets.html#years-produced).
+- **Figures:** [Emission time series and seasonal cycle](https://rchg.github.io/emicmip/plots_timeseries.html), [Emissions by sector](https://rchg.github.io/emicmip/plots_sectors.html).
 - **Author:** Ramiro Checa-Garcia (KNMI)
 - **Cite as:** https://doi.org/10.5281/zenodo.23440591 (all versions; 0.2.0:
   https://doi.org/10.5281/zenodo.23440592)

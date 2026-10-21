@@ -179,7 +179,7 @@ the store.
 |---------|--------------------|-----------|--------------------------------------------------------------|------------------------------------------------------------------|
 | legacy  | historical `c`     | 1750-2023 | 1750-1752, 1850-1851, 1990-2023                              | none (not produced any more)                                     |
 | legacy  | historical `c-ec3` | 1750-2023 | 1750-1751, 1753, 1850-1851, 1990-2023                        | none (not produced any more)                                     |
-| current | historical `d-ec3` | 1750-2023 | 1750-1751, 1800, 1850-1851, 1900, 1950, 1980-1981, 1989-2023 | 1752-1799, 1801-1849, 1852-1899, 1901-1949, 1951-1979, 1982-1988 |
+| current | historical `d-ec3` | 1750-2023 | 1750-1751, 1800, 1850-1851, 1900, 1940-2023                  | 1752-1799, 1801-1849, 1852-1899, 1901-1939                       |
 | current | ScenarioMIP `h-a`  | 2022-2100 | 2022-2030                                                    | 2031-2100                                                        |
 | current | ScenarioMIP `m-a`  | 2022-2100 | 2022-2030                                                    | 2031-2100                                                        |
 | current | ScenarioMIP `l-a`  | 2022-2100 | 2022-2030                                                    | 2031-2100                                                        |
@@ -188,6 +188,10 @@ the store.
 The current state of the store can always be listed with
 `cmip_check --toml <config>` (see
 [Checking what has been produced](tooling.md#checking-what-has-been-produced)).
+
+The global emissions of the years produced can be explored interactively in
+[Emission time series and seasonal cycle](plots_timeseries.md) and
+[Emissions by sector](plots_sectors.md).
 
 ## Raw datasets from input4MIPs
 

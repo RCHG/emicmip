@@ -15,14 +15,15 @@ worth knowing about them. A one-page PDF complements them:
 
 ## Where to start
 
-| If you want to                   | Read                                                                |
-|----------------------------------|---------------------------------------------------------------------|
-| use the data in a model run      | [Datasets](datasets.md), [Emission specification](emission_spec.md) |
-| see how the data were checked    | [Validation](validation.md)                                         |
-| check the aerosol (M7) settings  | [Emissions for M7](m7_aerosols.md)                                   |
-| see how the tools fit together   | [Tools](tooling.md)                                                 |
-| produce a dataset                | [Producing datasets](producing.md)                                  |
-| know the limitations of the data | [Notes and limitations](data_notes.md)                              |
+| If you want to                    | Read                                                                |
+|-----------------------------------|---------------------------------------------------------------------|
+| use the data in a model run       | [Datasets](datasets.md), [Emission specification](emission_spec.md) |
+| see how the data were checked     | [Validation](validation.md)                                         |
+| check the aerosol (M7) settings   | [Emissions for M7](m7_aerosols.md)                                  |
+| see how the tools fit together    | [Tools](tooling.md)                                                 |
+| produce a dataset                 | [Producing datasets](producing.md)                                  |
+| know the limitations of the data  | [Notes and limitations](data_notes.md)                              |
+| see the emissions of each dataset | [Time series](plots_timeseries.md), [By sector](plots_sectors.md)   |
 
 ## About/Contact
 
@@ -47,4 +48,6 @@ m7_aerosols
 validation
 producing
 data_notes
+plots_timeseries
+plots_sectors
 ```
