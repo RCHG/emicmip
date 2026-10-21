@@ -1,0 +1,49 @@
+/* Panels embedded in the Sphinx pages (Read the Docs theme, light only).
+   Everything is scoped to .emiviz so the theme is not touched. */
+.emiviz {
+  --bg: #fcfcfb; --panel: #f3f4f6; --line: #dcdfe4; --fg: #1d2129; --muted: #5a606b;
+  --accent: #2980b9; --accent-ink: #ffffff; --grid: #e6e8ec; --gap: rgba(90, 96, 107, 0.08);
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100; --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
+  --rest: #9aa0a8;
+  display: grid; gap: 14px; margin: 0 0 24px; color: var(--fg); font-size: 15px; line-height: 1.5;
+}
+.emiviz [hidden] { display: none !important; }
+.emiviz p { margin: 0; }
+.emiviz .controls { display: flex; flex-wrap: wrap; gap: 14px 26px; align-items: flex-end;
+  padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 4px; }
+.emiviz .field { display: grid; gap: 6px; margin: 0; font-weight: normal; }
+.emiviz .field > span, .emiviz fieldset legend { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--muted); font-weight: 700; border: 0; margin: 0; padding: 0; }
+.emiviz select { font: inherit; font-size: 14px; padding: 5px 8px; height: auto; border: 1px solid var(--line); border-radius: 3px;
+  background: #fff; color: var(--fg); max-width: 100%; box-shadow: none; }
+.emiviz fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 6px; flex-basis: 100%; }
+.emiviz .checks { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.emiviz .checks label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: .92rem; font-weight: normal; margin: 0; }
+.emiviz .checks input { margin: 0; }
+.emiviz .checks label.off { opacity: .45; cursor: default; }
+.emiviz .checks small { color: var(--muted); }
+.emiviz .sw { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+.emiviz .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 3px; overflow: hidden; }
+.emiviz .seg button, .emiviz .btn { font: inherit; font-size: 14px; border: 0; background: #fff; color: var(--fg);
+  padding: 5px 12px; cursor: pointer; line-height: 1.4; }
+.emiviz .seg.small button { padding: 2px 9px; font-size: .82rem; }
+.emiviz .seg button + button { border-left: 1px solid var(--line); }
+.emiviz .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.emiviz .btn { border: 1px solid var(--accent); color: var(--accent); border-radius: 3px; background: transparent; }
+.emiviz .btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.emiviz button:focus-visible, .emiviz select:focus-visible, .emiviz input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.emiviz .grid2 { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr); gap: 16px; }
+.emiviz .grid2.one { grid-template-columns: minmax(0, 1fr); }
+.emiviz .chartbox { border: 1px solid var(--line); border-radius: 4px; padding: 10px 10px 4px; min-width: 0;
+  display: grid; gap: 4px; align-content: start; background: var(--bg); }
+.emiviz .chartbox .cap { font-size: .82rem; color: var(--muted); padding: 0 4px; display: flex; justify-content: space-between;
+  align-items: center; gap: 8px; flex-wrap: wrap; }
+.emiviz .plot { width: 100%; height: 440px; }
+.emiviz .plot.short { height: 300px; }
+.emiviz .status { font-size: .9rem; color: var(--muted); min-height: 1.4em; }
+.emiviz .status.err { color: var(--s8); }
+.emiviz .foot { display: grid; gap: 6px; font-size: .85rem; color: var(--muted); }
+.emiviz .notes { display: grid; gap: 4px; font-size: .9rem; color: var(--muted); }
+@media (max-width: 900px) { .emiviz .grid2 { grid-template-columns: minmax(0, 1fr); } .emiviz .plot { height: 360px; } }
+/* automatic notes inside the green box (outside .emiviz): no empty line when there is nothing to say */
+#totalnote:empty, #splitnote:empty { display: none; }
